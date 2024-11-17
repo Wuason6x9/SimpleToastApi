@@ -11,6 +11,7 @@ allprojects {
     version = "1.0"
 
     apply(plugin = "java")
+    apply(plugin = "org.gradle.maven-publish")
 
     repositories {
         mavenCentral()
@@ -47,6 +48,7 @@ tasks {
     shadowJar {
         //simple toast
         archiveFileName.set("SimpleToast-${rootProject.version}.jar")
+        archiveClassifier.set("")
     }
 
     build {
