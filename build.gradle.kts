@@ -46,7 +46,7 @@ tasks {
 
     jar {
         //simple toast
-        archiveFileName.set("SimpleToast-${rootProject.version}.jar")
+        archiveFileName.set("SimpleToast-${rootProject.version}-api.jar")
         archiveClassifier.set("")
         from(sourceSets.main.get().output)
         from({
@@ -71,7 +71,7 @@ publishing {
             groupId = rootProject.group.toString()
             artifactId = rootProject.name
             version = rootProject.version.toString()
-            artifact(tasks.jar)
+            artifact(tasks.jar.get().archiveFile.get().asFile)
         }
     }
 }
