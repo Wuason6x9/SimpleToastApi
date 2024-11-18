@@ -71,7 +71,7 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("mavenJava") {
             groupId = rootProject.group.toString()
             artifactId = rootProject.name
             version = rootProject.version.toString()
