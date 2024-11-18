@@ -6,4 +6,4 @@ before_install:
   - chmod +x ./setup.sh
   - ./setup.sh
   - chmod +x ./gradlew
-  - ./gradlew clean -Pgroup=com.github.Wuason6x9 -Pversion=1.0 -xtest build publishToMavenLocal
+  - ./gradlew build publishMavenJavaPublicationToMavenLocal
