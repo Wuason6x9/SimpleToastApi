@@ -49,10 +49,6 @@ tasks {
         //simple toast
         archiveFileName.set("SimpleToast-${rootProject.version}.jar")
         archiveClassifier.set("")
-
-        manifest {
-            attributes["Main-Class"] = "dev.wuason.simpletoast.Main"
-        }
     }
 
     build {
