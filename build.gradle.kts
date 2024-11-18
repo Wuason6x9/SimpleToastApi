@@ -8,7 +8,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "1.0"
+    version = "0.1"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
