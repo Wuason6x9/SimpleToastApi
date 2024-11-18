@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "1.7.4" apply false
+    id("io.github.goooler.shadow") version "8.1.7"
     id("org.gradle.maven-publish")
 }
 
@@ -44,15 +45,18 @@ dependencies {
 
 tasks {
 
-    jar {
+    shadowJar {
         //simple toast
-        archiveFileName.set("SimpleToast-${rootProject.version}-api.jar")
+        archiveFileName.set("SimpleToast-${rootProject.version}.jar")
         archiveClassifier.set("")
-        from(sourceSets.main.get().output)
-        from({
-            configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-        })
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        manifest {
+            attributes["Main-Class"] = "dev.wuason.simpletoast.Main"
+        }
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }
 
@@ -71,7 +75,7 @@ publishing {
             groupId = rootProject.group.toString()
             artifactId = rootProject.name
             version = rootProject.version.toString()
-            artifact(tasks.jar.get().archiveFile.get().asFile)
+            artifact(tasks.shadowJar)
         }
     }
 }

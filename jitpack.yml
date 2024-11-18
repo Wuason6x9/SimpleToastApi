@@ -5,3 +5,5 @@ before_install:
   - sdk use java 16.0.2-open
   - chmod +x ./setup.sh
   - ./setup.sh
+  - chmod +x ./gradlew
+  - ./gradlew clean -Pgroup=com.github.Wuason6x9 -Pversion=1.0 -xtest build publishToMavenLocal
