@@ -1,3 +1,49 @@
+### GRADLE (**build.gradle**)
+
+Add the repository to your build.gradle file:
+```gradle
+plugins {
+    id 'io.github.goooler.shadow' version '8.1.8'
+    id 'java'
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION'
+}
+
+tasks {
+    shadowJar {
+        relocate("dev.wuason.toastapi", "my.project")
+    }
+}
+```
+
+### GRADLE KOTLIN DSL (**build.gradle.kts**)
+
+Add the repository to your build.gradle.kts file:
+```kotlin
+plugins {
+    java
+    id("io.github.goooler.shadow") version "8.1.8"
+}
+
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION")
+}
+
+tasks.shadowJar {
+    relocate("dev.wuason.toastapi", "my.project")
+}
+```
+
 ### MAVEN (**.pom**)
 
 Add the repository to your pom.xml file:
@@ -8,10 +54,7 @@ Add the repository to your pom.xml file:
         <url>https://jitpack.io</url>
     </repository>
 </repositories>
-```
 
-Add the dependency:
-```xml
 <dependency>
     <groupId>com.github.Wuason6x9</groupId>
     <artifactId>SimpleToastApi</artifactId>
@@ -20,35 +63,16 @@ Add the dependency:
 </dependency>
 ```
 
-### GRADLE (**build.gradle**)
+Example of use:
 
-Add the repository to your build.gradle file:
-```gradle
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-```
+```java
+    public void sendToast(Player player) {
+        ItemStack itemStack = new ItemStack(Material.DIAMOND);
 
-Add the dependency:
-```gradle
-
-dependencies {
-    compileOnly 'com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION'
-}
-```
-
-### GRADLE KOTLIN DSL (**build.gradle.kts**)
-
-Add the repository to your build.gradle.kts file:
-```kotlin
-repositories {
-    maven("https://jitpack.io")
-}
-```
-
-Add the dependency:
-```kotlin
-dependencies {
-    compileOnly("com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION")
-}
+        String text = GsonComponentSerializer.gson().serialize(
+                MiniMessage.miniMessage().deserialize("<rainbow>Hello!</rainbow>")
+        );
+        
+        SimpleToast.sendToast(itemStack, player, text, EToastType.CHALLENGE);
+    }
 ```
