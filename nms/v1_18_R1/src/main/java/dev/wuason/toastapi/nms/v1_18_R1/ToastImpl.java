@@ -14,10 +14,7 @@ import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class ToastImpl implements IToastWrapper {
 
@@ -28,7 +25,8 @@ public class ToastImpl implements IToastWrapper {
         if (icon != null) {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }
-        DisplayInfo displayInfo = new DisplayInfo(iconNMS, Component.nullToEmpty(title), Component.nullToEmpty("."), null, FrameType.valueOf(toastType.toString()), true, false, true);
+
+        DisplayInfo displayInfo = new DisplayInfo(iconNMS, Objects.requireNonNull(Component.Serializer.fromJson(title)), Component.nullToEmpty("."), null, FrameType.valueOf(toastType.toString()), true, false, true);
         AdvancementRewards advancementRewards = AdvancementRewards.EMPTY;
         ResourceLocation id = new ResourceLocation(namespace, path);
         Criterion criterion = new Criterion(new ImpossibleTrigger.TriggerInstance());

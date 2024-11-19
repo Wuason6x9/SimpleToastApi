@@ -28,7 +28,7 @@ public class ToastImpl implements IToastWrapper {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }
         CraftServer craftServer = (CraftServer) Bukkit.getServer();
-        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, Component.literal(title), Component.literal("."), Optional.empty(), AdvancementType.valueOf(toastType.toString()), true, false, true));
+        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, Objects.requireNonNull(Component.Serializer.fromJson(title, craftServer.getServer().registryAccess())), Component.literal("."), Optional.empty(), AdvancementType.valueOf(toastType.toString()), true, false, true));
         AdvancementRewards advancementRewards = AdvancementRewards.EMPTY;
         Optional<ResourceLocation> id = Optional.of(ResourceLocation.fromNamespaceAndPath(namespace, path));
         Criterion<ImpossibleTrigger.TriggerInstance> impossibleTrigger = new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());

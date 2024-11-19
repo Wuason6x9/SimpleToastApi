@@ -25,7 +25,8 @@ public class ToastImpl implements IToastWrapper {
         if (icon != null) {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }
-        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, Component.literal(title), Component.literal("."), Optional.empty(), AdvancementType.valueOf(toastType.toString()), true, false, true));
+
+        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, Objects.requireNonNull(Component.Serializer.fromJson(title)), Component.literal("."), Optional.empty(), AdvancementType.valueOf(toastType.toString()), true, false, true));
         AdvancementRewards advancementRewards = AdvancementRewards.EMPTY;
         Optional<ResourceLocation> id = Optional.of(new ResourceLocation(namespace, path));
         Criterion<ImpossibleTrigger.TriggerInstance> impossibleTrigger = new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());

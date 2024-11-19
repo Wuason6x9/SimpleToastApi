@@ -24,7 +24,7 @@ public class ToastImpl implements IToastWrapper {
         if (icon != null) {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }
-        AdvancementDisplay displayInfo = new AdvancementDisplay(iconNMS, CraftChatMessage.fromStringOrNull(title), CraftChatMessage.fromStringOrNull("."), null, AdvancementFrameType.valueOf(toastType.toString()), true, false, true);
+        AdvancementDisplay displayInfo = new AdvancementDisplay(iconNMS, CraftChatMessage.fromJSON(title), CraftChatMessage.fromStringOrNull("."), null, AdvancementFrameType.valueOf(toastType.toString()), true, false, true);
         AdvancementRewards advancementRewards = AdvancementRewards.a;
         MinecraftKey id = new MinecraftKey(namespace, path);
         Criterion criterion = new Criterion(new CriterionTriggerImpossible.a());
