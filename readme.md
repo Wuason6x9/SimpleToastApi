@@ -48,6 +48,35 @@ tasks.shadowJar {
 
 Add the repository to your pom.xml file:
 ```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+                <execution>
+                    <id>shade</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <minimizeJar>true</minimizeJar>
+                <relocations>
+                    <relocation>
+                        <pattern>dev.wuason.toastapi</pattern>
+                        <!-- TODO: Change this to my own package name -->
+                        <shadedPattern>my.project</shadedPattern>
+                    </relocation>
+                </relocations>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
 <repositories>
     <repository>
         <id>jitpack.io</id>
