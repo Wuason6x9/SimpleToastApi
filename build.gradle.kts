@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "1.7.4" apply false
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14" apply false
+    id("com.gradleup.shadow") version "8.3.5"
     id("org.gradle.maven-publish")
 }
 
