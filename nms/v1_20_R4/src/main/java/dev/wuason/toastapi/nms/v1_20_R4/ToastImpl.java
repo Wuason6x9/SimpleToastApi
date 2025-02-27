@@ -13,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,5 +56,4 @@ public class ToastImpl implements IToastWrapper {
         }}, new HashMap<>());
         serverPlayer.connection.send(packet2);
     }
-
 }

@@ -47,5 +47,4 @@ public class ToastImpl implements IToastWrapper {
         }}, new HashMap<>());
         serverPlayer.playerConnection.networkManager.sendPacket(packet2);
     }
-
 }

@@ -2,6 +2,8 @@ package dev.wuason.toastapi.utils;
 
 import org.bukkit.Bukkit;
 
+import java.util.Objects;
+
 public enum EMinecraftVersion {
     V1_16_5(0, NMSVersion.V1_16_R3),
     V1_17(1, NMSVersion.V1_17_R1),
@@ -32,7 +34,7 @@ public enum EMinecraftVersion {
      * Represents the specific version of the Minecraft server that has been selected.
      * This variable is used to store the selected Minecraft version to ensure compatibility
      * and proper configuration of the server.
-     *
+     * <p>
      * It is initialized to null, indicating that no version has been selected upon
      * initialization.
      */
@@ -58,16 +60,12 @@ public enum EMinecraftVersion {
      * and NMS version.
      *
      * @param versionNumber The version number of Minecraft.
-     * @param nmsVersion The NMS version associated with this Minecraft version. If null,
-     *                   the NMS version will be set to NMSVersion.UNSUPPORTED.
+     * @param nmsVersion    The NMS version associated with this Minecraft version. If null,
+     *                      the NMS version will be set to NMSVersion.UNSUPPORTED.
      */
     EMinecraftVersion(int versionNumber, NMSVersion nmsVersion) {
         this.versionNumber = versionNumber;
-        if (nmsVersion == null) {
-            this.nmsVersion = NMSVersion.UNSUPPORTED;
-        } else {
-            this.nmsVersion = nmsVersion;
-        }
+        this.nmsVersion = Objects.requireNonNullElse(nmsVersion, NMSVersion.UNSUPPORTED);
     }
 
     /**
@@ -158,7 +156,7 @@ public enum EMinecraftVersion {
      *
      * @param i the version number of the Minecraft version to be retrieved.
      * @return the MinecraftVersion that matches the given version number,
-     *         or UNSUPPORTED if no matching version is found.
+     * or UNSUPPORTED if no matching version is found.
      */
     public static EMinecraftVersion fromVersionNumber(int i) {
         for (EMinecraftVersion srv : values()) {

@@ -7,14 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class SimpleToast {
-    private static IToastWrapper toastWrapper;
+    private static final IToastWrapper toastWrapper;
 
     static {
         EMinecraftVersion version = EMinecraftVersion.getServerVersionSelected();
         try {
             toastWrapper = (IToastWrapper) Class.forName(String.format("dev.wuason.toastapi.nms.v%s.ToastImpl", version.getNMSVersion().getVersionName())).getDeclaredConstructors()[0].newInstance();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Fatal error occurred", e);
         }
     }
 
@@ -36,11 +36,11 @@ public class SimpleToast {
      * Sends a toast notification to a player using the specified parameters.
      * This overload does not include an icon, which defaults to null.
      *
-     * @param player The player who will receive the toast notification.
-     * @param title The title of the toast notification.
+     * @param player    The player who will receive the toast notification.
+     * @param title     The title of the toast notification.
      * @param toastType The type of the toast (e.g., TASK, CHALLENGE, GOAL).
      * @param namespace The namespace used for the toast.
-     * @param path The path used for the toast.
+     * @param path      The path used for the toast.
      */
     public static void sendToast(Player player, String title, EToastType toastType, String namespace, String path) {
         sendToast(null, player, title, toastType, namespace, path);
@@ -49,8 +49,8 @@ public class SimpleToast {
     /**
      * Sends a toast notification to a specified player with the provided title and type.
      *
-     * @param player the player to whom the toast notification will be sent
-     * @param title the title of the toast notification
+     * @param player    the player to whom the toast notification will be sent
+     * @param title     the title of the toast notification
      * @param toastType the type of the toast notification; must be one of the enum constants defined in {@link EToastType}
      */
     public static void sendToast(Player player, String title, EToastType toastType) {
@@ -78,6 +78,4 @@ public class SimpleToast {
     public static void sendToast(ItemStack icon, Player player, String title, EToastType toastType) {
         sendToast(icon, player, title, toastType, "simpletoastapi", "toastannounce");
     }
-
-
 }
