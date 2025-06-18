@@ -29,6 +29,7 @@ public enum EMinecraftVersion {
     V1_21_3(21, NMSVersion.V1_21_R2),
     V1_21_4(22, NMSVersion.V1_21_R3),
     V1_21_5(23, NMSVersion.V1_21_R4),
+    V1_21_6(24, NMSVersion.V1_21_R5),
     UNSUPPORTED(-1, NMSVersion.UNSUPPORTED);
 
     /**
@@ -218,6 +219,7 @@ public enum EMinecraftVersion {
         V1_21_R2(12),
         V1_21_R3(13),
         V1_21_R4(14),
+        V1_21_R5(15),
         UNSUPPORTED(-1);
 
         /**
