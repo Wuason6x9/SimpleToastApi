@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17" apply false
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.18" apply false
     id("com.gradleup.shadow") version "9.0.0-beta16"
     id("org.gradle.maven-publish")
 }
@@ -8,7 +8,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "0.5"
+    version = "0.6"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -36,7 +36,7 @@ dependencies {
     implementation(project(":bukkit"))
 
     allprojects.filter { ":nms:" in it.path }.forEach {
-        val config = if (it.path.contains("v1_16", true) || it.path.contains("v1_21_R5", true)) {
+        val config = if (it.path.contains("v1_16", true)) {
             "default"
         } else {
             io.papermc.paperweight.util.constants.REOBF_CONFIG
