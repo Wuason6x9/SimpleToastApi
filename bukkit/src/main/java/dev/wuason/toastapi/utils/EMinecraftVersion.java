@@ -31,6 +31,7 @@ public enum EMinecraftVersion {
     V1_21_5(23, NMSVersion.V1_21_R4),
     V1_21_6(24, NMSVersion.V1_21_R5),
     V1_21_7(25, NMSVersion.V1_21_R5),
+    V1_21_8(26, NMSVersion.V1_21_R5),
     UNSUPPORTED(-1, NMSVersion.UNSUPPORTED);
 
     /**
