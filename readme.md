@@ -8,11 +8,14 @@ plugins {
 }
 
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven {
+        name "TechmcStudios"
+        url "https://repo.techmc.es/releases"
+    }
 }
 
 dependencies {
-    implementation 'com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION'
+    implementation 'dev.wuason:simple-toast:0.8'
 }
 
 tasks {
@@ -32,11 +35,14 @@ plugins {
 }
 
 repositories {
-    maven("https://jitpack.io")
+    maven {
+        name = "TechmcStudios"
+        url = uri("https://repo.techmc.es/releases")
+    }
 }
 
 dependencies {
-    implementation("com.github.Wuason6x9:SimpleToastApi:RELEASE-VERSION")
+    implementation("dev.wuason:simple-toast:0.8")
 }
 
 tasks.shadowJar {
@@ -78,16 +84,17 @@ Add the repository to your pom.xml file:
 </build>
 
 <repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+    releases
+        <id>techmc-studios</id>
+        <name>TechMC Repository</name>
+        <url>https://repo.techmc.es/</url>
     </repository>
 </repositories>
 
 <dependency>
-    <groupId>com.github.Wuason6x9</groupId>
-    <artifactId>SimpleToastApi</artifactId>
-    <version>RELEASE-VERSION</version>
+    <groupId>dev.wuason</groupId>
+    <artifactId>simple-toast</artifactId>
+    <version>0.8</version>
     <scope>provided</scope>
 </dependency>
 ```
