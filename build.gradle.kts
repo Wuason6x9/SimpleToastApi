@@ -2,13 +2,13 @@ plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.18" apply false
     id("com.gradleup.shadow") version "9.0.0-beta16"
-    id("org.gradle.maven-publish")
+    id("maven-publish")
 }
 
 allprojects {
 
     group = "dev.wuason"
-    version = "0.7"
+    version = "0.8"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -55,6 +55,7 @@ tasks {
     }
 
     build {
+        dependsOn(":bukkit:test")
         dependsOn(shadowJar)
     }
 }
@@ -69,12 +70,32 @@ java {
 }
 
 publishing {
+    repositories {
+        maven {
+            url = uri("https://repo.techmc.es/releases")
+            credentials(PasswordCredentials::class) {
+                username = System.getenv("REPO_USERNAME")
+                password = System.getenv("REPO_PASSWORD")
+            }
+        }
+    }
     publications {
         create<MavenPublication>("mavenJava") {
             groupId = rootProject.group.toString()
-            artifactId = rootProject.name
+            artifactId = "simple-toast"
             version = rootProject.version.toString()
             artifact(tasks.shadowJar)
+            pom {
+                name = "SimpleToast API"
+                url = "https://github.com/Wuason6x9/SimpleToastApi/"
+                licenses {
+                    license {
+                        name = "GNU General Public License v3.0"
+                        url = "https://www.gnu.org/licenses/gpl-3.0.html"
+                        distribution = "repo"
+                    }
+                }
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ public class ToastImpl implements IToastWrapper {
     @Override
     public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(new ItemStack(Material.AIR));
+        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(new ItemStack(Material.PAPER));
         if (icon != null) {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }

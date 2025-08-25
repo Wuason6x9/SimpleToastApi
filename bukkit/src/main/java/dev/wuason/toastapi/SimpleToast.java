@@ -1,11 +1,27 @@
 package dev.wuason.toastapi;
 
+import dev.wuason.toastapi.content.IContent;
 import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
 import dev.wuason.toastapi.utils.EMinecraftVersion;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Entry point utility for sending toast notifications to players using different content sources.
+ * <p>
+ * All textual content is provided via {@link IContent} implementations which must return
+ * a valid JSON text component string understood by the client.
+ * Provided overloads allow specifying (optionally) the icon, toast type, namespace and path.
+ * Convenience variants fall back to sensible defaults:
+ * <ul>
+ *   <li>Namespace: <code>"simpletoastapi"</code></li>
+ *   <li>Path: <code>"toastannounce"</code></li>
+ *   <li>Toast type: {@link EToastType#TASK}</li>
+ * </ul>
+ */
 public class SimpleToast {
     private static final IToastWrapper toastWrapper;
 
@@ -19,63 +35,73 @@ public class SimpleToast {
     }
 
     /**
-     * Sends a toast notification to a player with the specified parameters.
+     * Sends a toast notification with full parameter control.
      *
-     * @param icon      The icon (ItemStack) to display in the toast notification.
-     * @param player    The player who will receive the toast notification.
-     * @param title     The title text to be displayed in the toast notification.
-     * @param toastType The type of toast notification (TASK, CHALLENGE, or GOAL).
-     * @param namespace The namespace for the toast notification.
-     * @param path      The path for the toast notification.
+     * @param icon      Optional icon (may be null) shown in the toast.
+     * @param player    Target player (not null).
+     * @param title     Content provider returning JSON text component (not null).
+     * @param toastType Visual style / frame of the toast.
+     * @param namespace Advancement/notification namespace identifier.
+     * @param path      Advancement/notification path identifier.
      */
-    public static void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
-        toastWrapper.sendToast(icon, player, title, toastType, namespace, path);
+    public static void sendToast(@Nullable ItemStack icon, @NotNull Player player, @NotNull IContent title, @NotNull EToastType toastType, @NotNull String namespace, @NotNull String path) {
+        toastWrapper.sendToast(icon, player, title.getContent(), toastType, namespace, path);
     }
 
     /**
-     * Sends a toast notification to a player using the specified parameters.
-     * This overload does not include an icon, which defaults to null.
+     * Sends a toast without an icon, retaining control over all other parameters.
      *
-     * @param player    The player who will receive the toast notification.
-     * @param title     The title of the toast notification.
-     * @param toastType The type of the toast (e.g., TASK, CHALLENGE, GOAL).
-     * @param namespace The namespace used for the toast.
-     * @param path      The path used for the toast.
+     * @param player    Target player.
+     * @param title     JSON content wrapper.
+     * @param toastType Toast type/frame.
+     * @param namespace Namespace identifier.
+     * @param path      Path identifier.
      */
-    public static void sendToast(Player player, String title, EToastType toastType, String namespace, String path) {
+    public static void sendToast(Player player, IContent title, EToastType toastType, String namespace, String path) {
         sendToast(null, player, title, toastType, namespace, path);
     }
 
     /**
-     * Sends a toast notification to a specified player with the provided title and type.
+     * Sends a toast specifying an icon, player and content with default namespace/path.
      *
-     * @param player    the player to whom the toast notification will be sent
-     * @param title     the title of the toast notification
-     * @param toastType the type of the toast notification; must be one of the enum constants defined in {@link EToastType}
+     * @param icon      Icon item (nullable allowed but use other overload if null).
+     * @param player    Target player.
+     * @param title     Content provider.
+     * @param toastType Toast type/frame.
      */
-    public static void sendToast(Player player, String title, EToastType toastType) {
+    public static void sendToast(ItemStack icon, Player player, IContent title, EToastType toastType) {
+        sendToast(icon, player, title, toastType, "simpletoastapi", "toastannounce");
+    }
+
+    /**
+     * Sends a toast specifying an icon, player and content with default toast type (TASK) and default namespace/path.
+     *
+     * @param icon   Icon item to display.
+     * @param player Target player.
+     * @param title  Content provider.
+     */
+    public static void sendToast(ItemStack icon, Player player, IContent title) {
+        sendToast(icon, player, title, EToastType.TASK);
+    }
+
+    /**
+     * Sends a toast without icon and with default namespace/path.
+     *
+     * @param player    Target player.
+     * @param title     Content provider.
+     * @param toastType Toast type/frame.
+     */
+    public static void sendToast(Player player, IContent title, EToastType toastType) {
         sendToast(null, player, title, toastType);
     }
 
     /**
-     * Sends a toast notification to a specified player with a given title.
+     * Sends a toast without icon using default toast type (TASK) and default namespace/path.
      *
-     * @param player The player to whom the toast notification is to be sent.
-     * @param title  The title of the toast notification.
+     * @param player Target player.
+     * @param title  Content provider.
      */
-    public static void sendToast(Player player, String title) {
+    public static void sendToast(Player player, IContent title) {
         sendToast(null, player, title, EToastType.TASK);
-    }
-
-    /**
-     * Sends a toast notification to the specified player with the provided icon, title, and toast type.
-     *
-     * @param icon      The ItemStack icon to display in the toast. Can be null.
-     * @param player    The player to whom the toast will be sent.
-     * @param title     The title of the toast notification.
-     * @param toastType The type of the toast (TASK, CHALLENGE, GOAL).
-     */
-    public static void sendToast(ItemStack icon, Player player, String title, EToastType toastType) {
-        sendToast(icon, player, title, toastType, "simpletoastapi", "toastannounce");
     }
 }

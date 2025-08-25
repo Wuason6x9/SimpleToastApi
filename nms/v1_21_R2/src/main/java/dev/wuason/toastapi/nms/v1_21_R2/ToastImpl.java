@@ -4,6 +4,8 @@ import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +25,9 @@ public class ToastImpl implements IToastWrapper {
     @Override
     public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(new ItemStack(Material.AIR));
+        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(new ItemStack(Material.STICK));
+        DataComponentPatch dataComponentPatch = DataComponentPatch.builder().set(DataComponents.ITEM_MODEL, ResourceLocation.fromNamespaceAndPath("minecraft", "air")).build();
+        iconNMS.applyComponents(dataComponentPatch);
         if (icon != null) {
             iconNMS = CraftItemStack.asNMSCopy(icon);
         }

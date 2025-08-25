@@ -92,16 +92,74 @@ Add the repository to your pom.xml file:
 </dependency>
 ```
 
-Example of use:
+### Usage Examples
 
+Below are three different ways to build and send toast text content.
+
+#### 1. Using Adventure Component (ComponentContent)
 ```java
-    public void sendToast(Player player) {
-        ItemStack itemStack = new ItemStack(Material.DIAMOND);
+import dev.wuason.toastapi.SimpleToast;
+import dev.wuason.toastapi.content.ComponentContent;
+import dev.wuason.toastapi.nms.EToastType;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 
-        String text = GsonComponentSerializer.gson().serialize(
-                MiniMessage.miniMessage().deserialize("<rainbow>Hello!</rainbow>")
-        );
-        
-        SimpleToast.sendToast(itemStack, player, text, EToastType.CHALLENGE);
-    }
+public void sendComponentToast(Player player) {
+    ItemStack icon = new ItemStack(Material.DIAMOND);
+    Component comp = Component.text("Achievement:", NamedTextColor.GOLD)
+            .append(Component.space())
+            .append(Component.text("Shiny Diamond", NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+    SimpleToast.sendToast(icon, player, new ComponentContent(comp), EToastType.CHALLENGE);
+}
+```
+
+#### 2. Using MiniMessage (MiniMessageContent)
+```java
+import dev.wuason.toastapi.SimpleToast;
+import dev.wuason.toastapi.content.MiniMessageContent;
+import dev.wuason.toastapi.nms.EToastType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
+
+public void sendMiniMessageToast(Player player) {
+    ItemStack icon = new ItemStack(Material.EMERALD);
+    String mini = "<gradient:#ff0000:#ffff00><bold>Treasure Found</bold></gradient> <gray>(Level <green>5</green>)";
+    SimpleToast.sendToast(icon, player, new MiniMessageContent(mini), EToastType.GOAL);
+}
+```
+
+#### 3. Using Legacy / Hex Codes (TextContent)
+TextContent parses ampersand codes into a JSON component automatically.
+Supported:
+- Colors: &0-&9 &a-&f (black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, white)
+- Hex: &#RRGGBB (exactly 6 hex digits, case-insensitive)
+- Styles: &l bold, &o italic, &n underlined, &m strikethrough, &k obfuscated
+- Reset: &r (clears color + styles)
+Applying a color (legacy or hex) resets active styles; styles stack until reset.
+```java
+import dev.wuason.toastapi.SimpleToast;
+import dev.wuason.toastapi.content.TextContent;
+import dev.wuason.toastapi.nms.EToastType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
+
+public void sendLegacyToast(Player player) {
+    ItemStack icon = new ItemStack(Material.GOLD_INGOT);
+    String raw = "&a&lGreen Title&r Normal &#ff8800Hex &nUnderlined";
+    SimpleToast.sendToast(icon, player, new TextContent(raw), EToastType.TASK);
+}
+```
+Quick reference:
+```
+&0 black  &1 dark_blue  &2 dark_green  &3 dark_aqua
+&4 dark_red &5 dark_purple &6 gold      &7 gray
+&8 dark_gray &9 blue     &a green      &b aqua
+&c red      &d light_purple &e yellow  &f white
+Hex: &#RRGGBB   Styles: &l bold &o italic &n underlined &m strikethrough &k obfuscated &r reset
 ```
