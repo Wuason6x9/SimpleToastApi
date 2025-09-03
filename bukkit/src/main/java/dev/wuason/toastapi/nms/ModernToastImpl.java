@@ -1,20 +1,13 @@
 package dev.wuason.toastapi.nms;
 
 import dev.wuason.toastapi.utils.EMinecraftVersion;
-import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.ImpossibleTrigger;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -37,97 +30,162 @@ public class ModernToastImpl implements IToastWrapper {
 
     @Override
     public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
-        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        
-        // Create NMS ItemStack
-        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(
-            icon != null ? icon : new ItemStack(Material.PAPER));
-        if (icon != null) {
-            iconNMS = CraftItemStack.asNMSCopy(icon);
-        }
-        
-        // Create title component with registry access (required for v1_20+)
-        CraftServer craftServer = (CraftServer) Bukkit.getServer();
-        Component titleComponent = Objects.requireNonNull(
-            Component.Serializer.fromJson(title, craftServer.getServer().registryAccess()));
-        Component subtitleComponent = Component.literal(".");
-        
-        // Create display info using AdvancementType (v1_20+ uses AdvancementType instead of FrameType)
-        AdvancementType advancementType = AdvancementType.valueOf(toastType.toString());
-        
-        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, titleComponent, 
-            subtitleComponent, Optional.empty(), advancementType, true, false, true));
-        
-        // Create advancement components
-        AdvancementRewards advancementRewards = AdvancementRewards.EMPTY;
-        ResourceLocation id = new ResourceLocation(namespace, path);
-        
-        // Create criterion
-        Criterion<ImpossibleTrigger.TriggerInstance> criterion;
-        if (usesAdvancementRequirements) {
-            // v1_20_R3+ uses new Criterion constructor with trigger
-            criterion = new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());
-        } else {
-            // v1_20_R1-R2 still uses simple constructor
-            criterion = new Criterion<>(new ImpossibleTrigger.TriggerInstance());
-        }
-        
-        HashMap<String, Criterion<?>> criteria = new HashMap<>();
-        criteria.put("impossible", criterion);
-        
-        // Create advancement based on version
-        Advancement advancement;
-        if (usesAdvancementRequirements) {
-            // v1_20_R3+ uses AdvancementRequirements
-            List<List<String>> requirements = Collections.singletonList(
-                Collections.singletonList("impossible"));
-            AdvancementRequirements advancementRequirements = new AdvancementRequirements(requirements);
+        try {
+            // Get server player via reflection
+            Object serverPlayer = Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer")
+                .getMethod("getHandle")
+                .invoke(player);
             
-            advancement = new Advancement(Optional.empty(), displayInfo, advancementRewards, 
-                criteria, advancementRequirements, false);
-        } else {
-            // v1_20_R1-R2 use String[][] requirements
-            String[][] requirements = {{"impossible"}};
+            // Create NMS ItemStack
+            Object iconNMS = Class.forName("org.bukkit.craftbukkit.inventory.CraftItemStack")
+                .getMethod("asNMSCopy", ItemStack.class)
+                .invoke(null, icon != null ? icon : new ItemStack(Material.PAPER));
+            
+            // Create title component with registry access (required for v1_20+)
+            Object craftServer = Bukkit.getServer();
+            Object minecraftServer = craftServer.getClass().getMethod("getServer").invoke(craftServer);
+            Object registryAccess = minecraftServer.getClass().getMethod("registryAccess").invoke(minecraftServer);
+            
+            Class<?> componentClass = Class.forName("net.minecraft.network.chat.Component");
+            Class<?> serializerClass = Class.forName("net.minecraft.network.chat.Component$Serializer");
+            Object titleComponent = serializerClass.getMethod("fromJson", String.class, 
+                Class.forName("net.minecraft.core.RegistryAccess")).invoke(null, title, registryAccess);
+            Object subtitleComponent = componentClass.getMethod("literal", String.class).invoke(null, ".");
+            
+            // Create display info - use AdvancementType with registry for these versions
+            Class<?> advancementTypeClass = Class.forName("net.minecraft.advancements.AdvancementType");
+            Object advancementType = advancementTypeClass.getMethod("valueOf", String.class).invoke(null, toastType.toString());
+            
+            Class<?> displayInfoClass = Class.forName("net.minecraft.advancements.DisplayInfo");
+            Constructor<?> displayInfoConstructor = displayInfoClass.getConstructor(
+                Class.forName("net.minecraft.world.item.ItemStack"),
+                componentClass, componentClass, Optional.class, advancementTypeClass,
+                boolean.class, boolean.class, boolean.class);
+            Object displayInfo = displayInfoConstructor.newInstance(iconNMS, titleComponent, subtitleComponent,
+                Optional.empty(), advancementType, true, false, true);
+            
+            // Create advancement components
+            Object advancementRewards = Class.forName("net.minecraft.advancements.AdvancementRewards")
+                .getField("EMPTY").get(null);
+            
+            Class<?> resourceLocationClass = Class.forName("net.minecraft.resources.ResourceLocation");
+            Object id = resourceLocationClass.getConstructor(String.class, String.class)
+                .newInstance(namespace, path);
+            
+            // Create impossible criterion with version-specific logic
+            Object criterion;
+            HashMap<String, Object> criteria = new HashMap<>();
+            
+            Class<?> impossibleTriggerClass = Class.forName("net.minecraft.advancements.critereon.ImpossibleTrigger");
+            Class<?> triggerInstanceClass = Class.forName("net.minecraft.advancements.critereon.ImpossibleTrigger$TriggerInstance");
+            
             if (hasExtraAdvancementParam) {
-                advancement = new Advancement(id, null, displayInfo.get(), advancementRewards, 
-                    criteria, requirements, false);
+                // v1_20+ - uses new constructor signature
+                Object triggerInstance = triggerInstanceClass.getDeclaredConstructor().newInstance();
+                Object impossibleTrigger = impossibleTriggerClass.getDeclaredConstructor().newInstance();
+                
+                Class<?> criterionClass = Class.forName("net.minecraft.advancements.Criterion");
+                Constructor<?> criterionConstructor = criterionClass.getConstructor(impossibleTriggerClass, triggerInstanceClass);
+                criterion = criterionConstructor.newInstance(impossibleTrigger, triggerInstance);
             } else {
-                advancement = new Advancement(id, null, displayInfo.get(), advancementRewards, 
-                    criteria, requirements);
+                // Older versions
+                Object triggerInstance = triggerInstanceClass.getDeclaredConstructor().newInstance();
+                Class<?> criterionClass = Class.forName("net.minecraft.advancements.Criterion");
+                Constructor<?> criterionConstructor = criterionClass.getConstructor(triggerInstanceClass);
+                criterion = criterionConstructor.newInstance(triggerInstance);
             }
+            
+            criteria.put("impossible", criterion);
+            
+            // Create advancement
+            Object advancement;
+            Class<?> advancementClass = Class.forName("net.minecraft.advancements.Advancement");
+            
+            if (usesAdvancementRequirements) {
+                // v1_20_R3+ - uses AdvancementRequirements
+                Class<?> requirementsClass = Class.forName("net.minecraft.advancements.AdvancementRequirements");
+                List<List<String>> requirementsList = Collections.singletonList(Collections.singletonList("impossible"));
+                Object requirements = requirementsClass.getConstructor(List.class).newInstance(requirementsList);
+                
+                Constructor<?> advancementConstructor = advancementClass.getConstructor(
+                    Optional.class, Optional.class, Class.forName("net.minecraft.advancements.AdvancementRewards"),
+                    Map.class, requirementsClass, boolean.class);
+                advancement = advancementConstructor.newInstance(
+                    Optional.empty(), Optional.of(displayInfo), advancementRewards, criteria, requirements, false);
+            } else {
+                // Older versions use String[][]
+                String[][] requirements = {{"impossible"}};
+                
+                if (hasExtraAdvancementParam) {
+                    Constructor<?> advancementConstructor = advancementClass.getConstructor(
+                        resourceLocationClass, advancementClass, displayInfoClass,
+                        Class.forName("net.minecraft.advancements.AdvancementRewards"),
+                        Map.class, String[][].class, boolean.class);
+                    advancement = advancementConstructor.newInstance(id, null, displayInfo, 
+                        advancementRewards, criteria, requirements, false);
+                } else {
+                    Constructor<?> advancementConstructor = advancementClass.getConstructor(
+                        resourceLocationClass, advancementClass, displayInfoClass,
+                        Class.forName("net.minecraft.advancements.AdvancementRewards"),
+                        Map.class, String[][].class);
+                    advancement = advancementConstructor.newInstance(id, null, displayInfo, 
+                        advancementRewards, criteria, requirements);
+                }
+            }
+            
+            // Create and setup advancement progress
+            Class<?> advancementProgressClass = Class.forName("net.minecraft.advancements.AdvancementProgress");
+            Object advancementProgress = advancementProgressClass.getDeclaredConstructor().newInstance();
+            
+            if (usesAdvancementRequirements) {
+                Class<?> requirementsClass = Class.forName("net.minecraft.advancements.AdvancementRequirements");
+                List<List<String>> requirementsList = Collections.singletonList(Collections.singletonList("impossible"));
+                Object requirements = requirementsClass.getConstructor(List.class).newInstance(requirementsList);
+                advancementProgressClass.getMethod("update", requirementsClass)
+                    .invoke(advancementProgress, requirements);
+            } else {
+                String[][] requirements = {{"impossible"}};
+                advancementProgressClass.getMethod("update", Map.class, String[][].class)
+                    .invoke(advancementProgress, criteria, requirements);
+            }
+            
+            Object criterionProgress = advancementProgressClass.getMethod("getCriterion", String.class)
+                .invoke(advancementProgress, "impossible");
+            criterionProgress.getClass().getMethod("grant").invoke(criterionProgress);
+            
+            // Setup advancement map
+            Map<Object, Object> advancementsToGrant = new HashMap<>();
+            advancementsToGrant.put(id, advancementProgress);
+            
+            // Send packets
+            List<Object> advancementList = new ArrayList<>();
+            if (usesAdvancementHolder) {
+                // v1_20_R3+ uses AdvancementHolder
+                Class<?> advancementHolderClass = Class.forName("net.minecraft.advancements.AdvancementHolder");
+                Object advancementHolder = advancementHolderClass.getConstructor(resourceLocationClass, advancementClass)
+                    .newInstance(id, advancement);
+                advancementList.add(advancementHolder);
+            } else {
+                advancementList.add(advancement);
+            }
+            
+            Class<?> packetClass = Class.forName("net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket");
+            Constructor<?> packetConstructor = packetClass.getConstructor(boolean.class, Collection.class, Set.class, Map.class);
+            
+            Object packet1 = packetConstructor.newInstance(false, advancementList, 
+                new HashSet<>(), advancementsToGrant);
+            
+            Object connection = serverPlayer.getClass().getField("connection").get(serverPlayer);
+            connection.getClass().getMethod("send", Class.forName("net.minecraft.network.protocol.Packet"))
+                .invoke(connection, packet1);
+            
+            Object packet2 = packetConstructor.newInstance(false, new ArrayList<>(), 
+                Collections.singleton(id), new HashMap<>());
+            connection.getClass().getMethod("send", Class.forName("net.minecraft.network.protocol.Packet"))
+                .invoke(connection, packet2);
+                
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send toast for version " + nmsVersion, e);
         }
-        
-        // Create advancement progress
-        AdvancementProgress advancementProgress = new AdvancementProgress();
-        if (usesAdvancementRequirements) {
-            AdvancementRequirements advancementRequirements = new AdvancementRequirements(
-                Collections.singletonList(Collections.singletonList("impossible")));
-            advancementProgress.update(advancementRequirements);
-        } else {
-            String[][] requirements = {{"impossible"}};
-            advancementProgress.update(criteria, requirements);
-        }
-        advancementProgress.getCriterion("impossible").grant();
-        
-        // Setup advancement map
-        Map<ResourceLocation, AdvancementProgress> advancementsToGrant = new HashMap<>();
-        advancementsToGrant.put(id, advancementProgress);
-        
-        // Send packets
-        List<Object> advancementList = new ArrayList<>();
-        if (usesAdvancementHolder) {
-            // v1_20_R3+ uses AdvancementHolder
-            advancementList.add(new AdvancementHolder(id, advancement));
-        } else {
-            advancementList.add(advancement);
-        }
-        
-        ClientboundUpdateAdvancementsPacket packet1 = new ClientboundUpdateAdvancementsPacket(false, 
-            advancementList, new HashSet<>(), advancementsToGrant);
-        serverPlayer.connection.send(packet1);
-        
-        ClientboundUpdateAdvancementsPacket packet2 = new ClientboundUpdateAdvancementsPacket(false, 
-            new ArrayList<>(), Collections.singleton(id), new HashMap<>());
-        serverPlayer.connection.send(packet2);
     }
 }

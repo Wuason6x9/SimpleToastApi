@@ -37,8 +37,7 @@ dependencies {
 
     // Only include the remaining NMS module (v1_16_R3) 
     // Other versions are now handled by grouped implementations
-    val v16Project = project(":nms:v1_16_R3")
-    implementation(v16Project, "default")
+    implementation(project(":nms:v1_16_R3"))
 }
 
 
