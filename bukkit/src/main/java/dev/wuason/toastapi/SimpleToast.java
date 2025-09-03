@@ -3,7 +3,7 @@ package dev.wuason.toastapi;
 import dev.wuason.toastapi.content.IContent;
 import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
-import dev.wuason.toastapi.utils.EMinecraftVersion;
+import dev.wuason.toastapi.nms.ToastManagerFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -23,16 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class SimpleToast {
-    private static final IToastWrapper toastWrapper;
-
-    static {
-        EMinecraftVersion version = EMinecraftVersion.getServerVersionSelected();
-        try {
-            toastWrapper = (IToastWrapper) Class.forName(String.format("dev.wuason.toastapi.nms.v%s.ToastImpl", version.getNMSVersion().getVersionName())).getDeclaredConstructors()[0].newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Fatal error occurred", e);
-        }
-    }
+    private static final IToastWrapper toastWrapper = ToastManagerFactory.getInstance();
 
     /**
      * Sends a toast notification with full parameter control.

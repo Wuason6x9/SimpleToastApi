@@ -35,14 +35,9 @@ allprojects {
 dependencies {
     implementation(project(":bukkit"))
 
-    allprojects.filter { ":nms:" in it.path }.forEach {
-        val config = if (it.path.contains("v1_16", true)) {
-            "default"
-        } else {
-            io.papermc.paperweight.util.constants.REOBF_CONFIG
-        }
-        implementation(project(it.path, config))
-    }
+    // Only include the remaining NMS module (v1_16_R3) 
+    // Other versions are now handled by grouped implementations
+    implementation(project(":nms:v1_16_R3"))
 }
 
 
