@@ -1,3 +1,6 @@
+# MC: 1.16.5 - 1.21.9
+
+
 ### GRADLE (**build.gradle**)
 
 Add the repository to your build.gradle file:
@@ -15,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.wuason:simple-toast:0.8'
+    implementation 'dev.wuason:simple-toast:0.9'
 }
 
 tasks {
@@ -42,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.wuason:simple-toast:0.8")
+    implementation("dev.wuason:simple-toast:0.9")
 }
 
 tasks.shadowJar {
@@ -94,7 +97,7 @@ Add the repository to your pom.xml file:
 <dependency>
     <groupId>dev.wuason</groupId>
     <artifactId>simple-toast</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <scope>provided</scope>
 </dependency>
 ```
