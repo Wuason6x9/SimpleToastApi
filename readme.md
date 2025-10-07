@@ -1,5 +1,3 @@
-# MC: 1.16.5 - 1.21.8
-
 ### GRADLE (**build.gradle**)
 
 Add the repository to your build.gradle file:

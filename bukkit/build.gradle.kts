@@ -7,7 +7,8 @@ dependencies {
     compileOnly("net.kyori:adventure-text-serializer-gson:4.17.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.17.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
