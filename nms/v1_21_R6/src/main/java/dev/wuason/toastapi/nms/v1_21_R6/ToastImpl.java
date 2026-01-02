@@ -24,6 +24,14 @@ import java.util.*;
 
 public class ToastImpl implements IToastWrapper {
 
+    public static Component fromJson(String jsonString) {
+        JsonElement jsonElement = JsonParser.parseString(jsonString);
+        return ComponentSerialization.CODEC
+                .parse(JsonOps.INSTANCE, jsonElement)
+                .result()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid component JSON: " + jsonString));
+    }
+
     @Override
     public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
@@ -63,13 +71,5 @@ public class ToastImpl implements IToastWrapper {
             add(id.get());
         }}, new HashMap<>(), true);
         serverPlayer.connection.send(packet2);
-    }
-
-    public static Component fromJson(String jsonString) {
-        JsonElement jsonElement = JsonParser.parseString(jsonString);
-        return ComponentSerialization.CODEC
-                .parse(JsonOps.INSTANCE, jsonElement)
-                .result()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid component JSON: " + jsonString));
     }
 }

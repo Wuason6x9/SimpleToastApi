@@ -8,7 +8,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "0.9.1"
+    version = "0.10"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -38,8 +38,7 @@ dependencies {
     allprojects.filter { ":nms:" in it.path }.forEach {
         val config = if (it.path.contains("v1_16", true)) {
             "default"
-        }
-        else {
+        } else {
             io.papermc.paperweight.util.constants.REOBF_CONFIG
         }
 

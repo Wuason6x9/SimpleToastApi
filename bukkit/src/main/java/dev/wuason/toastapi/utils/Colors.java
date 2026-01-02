@@ -6,13 +6,13 @@ import java.util.List;
 public final class Colors {
     /**
      * Converts a String with format codes (&x and &#RRGGBB) to a Text Component JSON.
-     *
+     * <p>
      * Supported rules:
      * - Colors (&0-&9, &a-&f) => named color (black, dark_blue, etc.). Applying a color resets styles.
      * - Hex (&#RRGGBB) => color "#rrggbb" (lowercase). Applying a hex color resets styles.
      * - Styles: &k (obfuscated), &l (bold), &m (strikethrough), &n (underlined), &o (italic)
      * - Reset: &r (resets color and styles)
-     *
+     * <p>
      * If there are no codes, returns {"text":"..."} with the escaped text.
      * If there are codes, returns {"text":"", "extra":[ { "text":"...", "color":"...", "bold":true, ... }, ... ]}.
      *
@@ -39,7 +39,7 @@ public final class Colors {
                     if (i + 7 < len) {
                         String hex = input.substring(i + 2, i + 8);
                         if (isHex6(hex)) {
-                            if (currentText.length() > 0) {
+                            if (!currentText.isEmpty()) {
                                 segments.add(new Segment(currentText.toString(), current.copy()));
                                 currentText.setLength(0);
                             }
@@ -57,7 +57,7 @@ public final class Colors {
 
                     String colorName = mapColor(code);
                     if (colorName != null) {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
@@ -70,37 +70,37 @@ public final class Colors {
 
                     boolean recognized = true;
                     if (code == 'k') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
                         current.obfuscated = true;
                     } else if (code == 'l') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
                         current.bold = true;
                     } else if (code == 'm') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
                         current.strikethrough = true;
                     } else if (code == 'n') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
                         current.underlined = true;
                     } else if (code == 'o') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
                         current.italic = true;
                     } else if (code == 'r') {
-                        if (currentText.length() > 0) {
+                        if (!currentText.isEmpty()) {
                             segments.add(new Segment(currentText.toString(), current.copy()));
                             currentText.setLength(0);
                         }
@@ -125,7 +125,7 @@ public final class Colors {
             i++;
         }
 
-        if (currentText.length() > 0) {
+        if (!currentText.isEmpty()) {
             segments.add(new Segment(currentText.toString(), current.copy()));
         }
 
@@ -160,25 +160,25 @@ public final class Colors {
     }
 
     private static String mapColor(char code) {
-        switch (code) {
-            case '0': return "black";
-            case '1': return "dark_blue";
-            case '2': return "dark_green";
-            case '3': return "dark_aqua";
-            case '4': return "dark_red";
-            case '5': return "dark_purple";
-            case '6': return "gold";
-            case '7': return "gray";
-            case '8': return "dark_gray";
-            case '9': return "blue";
-            case 'a': return "green";
-            case 'b': return "aqua";
-            case 'c': return "red";
-            case 'd': return "light_purple";
-            case 'e': return "yellow";
-            case 'f': return "white";
-            default: return null;
-        }
+        return switch (code) {
+            case '0' -> "black";
+            case '1' -> "dark_blue";
+            case '2' -> "dark_green";
+            case '3' -> "dark_aqua";
+            case '4' -> "dark_red";
+            case '5' -> "dark_purple";
+            case '6' -> "gold";
+            case '7' -> "gray";
+            case '8' -> "dark_gray";
+            case '9' -> "blue";
+            case 'a' -> "green";
+            case 'b' -> "aqua";
+            case 'c' -> "red";
+            case 'd' -> "light_purple";
+            case 'e' -> "yellow";
+            case 'f' -> "white";
+            default -> null;
+        };
     }
 
     private static boolean isHex6(String s) {
@@ -198,13 +198,27 @@ public final class Colors {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-                case '"': sb.append("\\\""); break;
-                case '\\': sb.append("\\\\"); break;
-                case '\b': sb.append("\\b"); break;
-                case '\f': sb.append("\\f"); break;
-                case '\n': sb.append("\\n"); break;
-                case '\r': sb.append("\\r"); break;
-                case '\t': sb.append("\\t"); break;
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
                 default:
                     if (c < 0x20) {
                         sb.append(String.format("\\u%04x", (int) c));
@@ -244,13 +258,6 @@ public final class Colors {
         }
     }
 
-    private static final class Segment {
-        final String text;
-        final Style style;
-
-        Segment(String text, Style style) {
-            this.text = text;
-            this.style = style;
-        }
+    private record Segment(String text, Style style) {
     }
 }

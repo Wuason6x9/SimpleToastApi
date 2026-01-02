@@ -76,6 +76,66 @@ public enum EMinecraftVersion {
     }
 
     /**
+     * Converts a string representation of a Minecraft version into a MinecraftVersion enum.
+     *
+     * @param version the string representation of the Minecraft version (e.g., "1.16.4").
+     * @return the corresponding MinecraftVersion enum if it exists, else returns UNSUPPORTED.
+     */
+    public static EMinecraftVersion fromString(String version) {
+        try {
+            return valueOf("V" + version.replace(".", "_"));
+        } catch (IllegalArgumentException e) {
+            return UNSUPPORTED;
+        }
+    }
+
+    /**
+     * Returns the MinecraftVersion corresponding to the specified version number.
+     *
+     * @param i the version number of the Minecraft version to be retrieved.
+     * @return the MinecraftVersion that matches the given version number,
+     * or UNSUPPORTED if no matching version is found.
+     */
+    public static EMinecraftVersion fromVersionNumber(int i) {
+        for (EMinecraftVersion srv : values()) {
+            if (srv.versionNumber == i) return srv;
+        }
+        return UNSUPPORTED;
+    }
+
+    /**
+     * Retrieves the selected server version. If it has not been selected yet,
+     * it determines the version from Bukkit's version string and sets it.
+     *
+     * @return The selected Minecraft server version.
+     */
+    public static EMinecraftVersion getServerVersionSelected() {
+        if (serverVersionSelected == null) {
+            String versionName = Bukkit.getBukkitVersion().split("-")[0];
+            serverVersionSelected = fromString(versionName);
+        }
+        return serverVersionSelected;
+    }
+
+    /**
+     * Retrieves the server version of Bukkit.
+     *
+     * @return The server version string from Bukkit.
+     */
+    public static String getServerVersionBukkit() {
+        return Bukkit.getBukkitVersion().split("-")[0];
+    }
+
+    /**
+     * Retrieves the last supported version of Minecraft from an array of version values.
+     *
+     * @return The second to last Minecraft version indicating the last officially supported version.
+     */
+    public static EMinecraftVersion getLastSupportedVersion() {
+        return values()[values().length - 2];
+    }
+
+    /**
      * Retrieves the current NMS (Net Minecraft Server) version.
      *
      * @return the NMSVersion representing the current version.
@@ -142,66 +202,6 @@ public enum EMinecraftVersion {
      */
     public boolean isAtMost(EMinecraftVersion otherVersion) {
         return versionNumber <= otherVersion.versionNumber;
-    }
-
-    /**
-     * Converts a string representation of a Minecraft version into a MinecraftVersion enum.
-     *
-     * @param version the string representation of the Minecraft version (e.g., "1.16.4").
-     * @return the corresponding MinecraftVersion enum if it exists, else returns UNSUPPORTED.
-     */
-    public static EMinecraftVersion fromString(String version) {
-        try {
-            return valueOf("V" + version.replace(".", "_"));
-        } catch (IllegalArgumentException e) {
-            return UNSUPPORTED;
-        }
-    }
-
-    /**
-     * Returns the MinecraftVersion corresponding to the specified version number.
-     *
-     * @param i the version number of the Minecraft version to be retrieved.
-     * @return the MinecraftVersion that matches the given version number,
-     * or UNSUPPORTED if no matching version is found.
-     */
-    public static EMinecraftVersion fromVersionNumber(int i) {
-        for (EMinecraftVersion srv : values()) {
-            if (srv.versionNumber == i) return srv;
-        }
-        return UNSUPPORTED;
-    }
-
-    /**
-     * Retrieves the selected server version. If it has not been selected yet,
-     * it determines the version from Bukkit's version string and sets it.
-     *
-     * @return The selected Minecraft server version.
-     */
-    public static EMinecraftVersion getServerVersionSelected() {
-        if (serverVersionSelected == null) {
-            String versionName = Bukkit.getBukkitVersion().split("-")[0];
-            serverVersionSelected = fromString(versionName);
-        }
-        return serverVersionSelected;
-    }
-
-    /**
-     * Retrieves the server version of Bukkit.
-     *
-     * @return The server version string from Bukkit.
-     */
-    public static String getServerVersionBukkit() {
-        return Bukkit.getBukkitVersion().split("-")[0];
-    }
-
-    /**
-     * Retrieves the last supported version of Minecraft from an array of version values.
-     *
-     * @return The second to last Minecraft version indicating the last officially supported version.
-     */
-    public static EMinecraftVersion getLastSupportedVersion() {
-        return values()[values().length - 2];
     }
 
     /**

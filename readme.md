@@ -1,9 +1,9 @@
 # MC: 1.16.5 - 1.21.10
 
-
 ### GRADLE (**build.gradle**)
 
 Add the repository to your build.gradle file:
+
 ```gradle
 plugins {
     id 'io.github.goooler.shadow' version '8.1.8'
@@ -31,6 +31,7 @@ tasks {
 ### GRADLE KOTLIN DSL (**build.gradle.kts**)
 
 Add the repository to your build.gradle.kts file:
+
 ```kotlin
 plugins {
     java
@@ -56,6 +57,7 @@ tasks.shadowJar {
 ### MAVEN (**.pom**)
 
 Add the repository to your pom.xml file:
+
 ```xml
 <build>
     <plugins>
@@ -107,6 +109,7 @@ Add the repository to your pom.xml file:
 Below are three different ways to build and send toast text content.
 
 #### 1. Using Adventure Component (ComponentContent)
+
 ```java
 import dev.wuason.toastapi.SimpleToast;
 import dev.wuason.toastapi.content.ComponentContent;
@@ -128,6 +131,7 @@ public void sendComponentToast(Player player) {
 ```
 
 #### 2. Using MiniMessage (MiniMessageContent)
+
 ```java
 import dev.wuason.toastapi.SimpleToast;
 import dev.wuason.toastapi.content.MiniMessageContent;
@@ -144,13 +148,17 @@ public void sendMiniMessageToast(Player player) {
 ```
 
 #### 3. Using Legacy / Hex Codes (TextContent)
+
 TextContent parses ampersand codes into a JSON component automatically.
 Supported:
-- Colors: &0-&9 &a-&f (black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, white)
+
+- Colors: &0-&9 &a-&f (black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue,
+  green, aqua, red, light_purple, yellow, white)
 - Hex: &#RRGGBB (exactly 6 hex digits, case-insensitive)
 - Styles: &l bold, &o italic, &n underlined, &m strikethrough, &k obfuscated
 - Reset: &r (clears color + styles)
-Applying a color (legacy or hex) resets active styles; styles stack until reset.
+  Applying a color (legacy or hex) resets active styles; styles stack until reset.
+
 ```java
 import dev.wuason.toastapi.SimpleToast;
 import dev.wuason.toastapi.content.TextContent;
@@ -165,7 +173,9 @@ public void sendLegacyToast(Player player) {
     SimpleToast.sendToast(icon, player, new TextContent(raw), EToastType.TASK);
 }
 ```
+
 Quick reference:
+
 ```
 &0 black  &1 dark_blue  &2 dark_green  &3 dark_aqua
 &4 dark_red &5 dark_purple &6 gold      &7 gray
