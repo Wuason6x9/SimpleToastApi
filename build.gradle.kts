@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" apply false
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21" apply false
     id("com.gradleup.shadow") version "9.1.0"
     id("maven-publish")
 }
@@ -8,7 +8,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "0.10"
+    version = "0.11-paper"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -36,7 +36,9 @@ dependencies {
     implementation(project(":bukkit"))
 
     allprojects.filter { ":nms:" in it.path }.forEach {
-        val config = if (it.path.contains("v1_16", true)) {
+        val noReobfVersions = listOf("v1_16", "v26_1", "v26_1_1")
+
+        val config = if (noReobfVersions.any { v -> it.path.contains(v, true) }) {
             "default"
         } else {
             io.papermc.paperweight.util.constants.REOBF_CONFIG
@@ -75,8 +77,9 @@ publishing {
         maven {
             url = uri("https://repo.techmc.es/releases")
             credentials(PasswordCredentials::class) {
-                username = System.getenv("REPO_USERNAME")
-                password = System.getenv("REPO_PASSWORD")
+
+                username = "REPO_USERNAME"
+                password = "REPO_PASSWORD"
             }
         }
     }

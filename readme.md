@@ -1,4 +1,4 @@
-# MC: 1.16.5 - 1.21.10
+# MC: 1.16.5 - 26.1x
 
 ### GRADLE (**build.gradle**)
 
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.wuason:simple-toast:0.9.1")
+    implementation("dev.wuason:simple-toast:0.11-paper")
 }
 
 tasks.shadowJar {
@@ -99,7 +99,7 @@ Add the repository to your pom.xml file:
 <dependency>
     <groupId>dev.wuason</groupId>
     <artifactId>simple-toast</artifactId>
-    <version>0.9.1</version>
+    <version>0.11-paper</version>
     <scope>provided</scope>
 </dependency>
 ```

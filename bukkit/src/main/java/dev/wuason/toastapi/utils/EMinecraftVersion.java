@@ -35,6 +35,8 @@ public enum EMinecraftVersion {
     V1_21_9(27, NMSVersion.V1_21_R6),
     V1_21_10(28, NMSVersion.V1_21_R6),
     V1_21_11(29, NMSVersion.V1_21_R7),
+    V26_1(30, NMSVersion.V26_1),
+    V26_1_1(31, NMSVersion.V26_1_1),
     UNSUPPORTED(-1, NMSVersion.UNSUPPORTED);
 
     /**
@@ -82,8 +84,10 @@ public enum EMinecraftVersion {
      * @return the corresponding MinecraftVersion enum if it exists, else returns UNSUPPORTED.
      */
     public static EMinecraftVersion fromString(String version) {
+        String normalized = version.replace(".", "_");
+
         try {
-            return valueOf("V" + version.replace(".", "_"));
+            return valueOf("V" + normalized);
         } catch (IllegalArgumentException e) {
             return UNSUPPORTED;
         }
@@ -111,8 +115,27 @@ public enum EMinecraftVersion {
      */
     public static EMinecraftVersion getServerVersionSelected() {
         if (serverVersionSelected == null) {
-            String versionName = Bukkit.getBukkitVersion().split("-")[0];
-            serverVersionSelected = fromString(versionName);
+            String raw = Bukkit.getBukkitVersion().split("-")[0];
+            String[] parts = raw.split("\\.");
+
+            try {
+                int first = Integer.parseInt(parts[0]);
+                if (first >= 25) {
+                    StringBuilder versionKey = new StringBuilder();
+                    int count = 0;
+                    for (String part : parts) {
+                        if (part.matches("\\d+") && count < 3) {
+                            if (count > 0) versionKey.append("_");
+                            versionKey.append(part);
+                            count++;
+                        } else break;
+                    }
+                    serverVersionSelected = fromString(versionKey.toString());
+                    return serverVersionSelected;
+                }
+            } catch (NumberFormatException ignored) {}
+
+            serverVersionSelected = fromString(raw);
         }
         return serverVersionSelected;
     }
@@ -227,6 +250,8 @@ public enum EMinecraftVersion {
         V1_21_R5(15),
         V1_21_R6(16),
         V1_21_R7(17),
+        V26_1(18),
+        V26_1_1(19),
         UNSUPPORTED(-1);
 
         /**
