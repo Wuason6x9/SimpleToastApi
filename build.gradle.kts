@@ -17,9 +17,9 @@
 
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21" apply false
-    id("com.gradleup.shadow") version "9.1.0"
     id("maven-publish")
+    alias(libs.plugins.paperweight) apply false
+    alias(libs.plugins.shadow)
 }
 
 allprojects {
@@ -33,9 +33,9 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-        //maven("https://oss.sonatype.org/content/repositories/snapshots")
-        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // For Spigot
+
         maven("https://repo.papermc.io/repository/maven-public/") // For Paper
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // For Spigot
     }
 
     tasks.withType<JavaCompile> {

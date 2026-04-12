@@ -1,0 +1,48 @@
+[versions]
+## Plugins base
+paperweight = "2.0.0-beta.21"
+shadow = "9.1.0"
+
+## Dependencias generales
+spigot = "1.21.8-R0.1-SNAPSHOT"
+adventure = "4.26.1" # https://docs.papermc.io/adventure/minimessage/api/
+junit = "6.1.0-M1"
+
+## NMS Paperweight Bundles
+bundle1171 = "1.17.1-R0.1-SNAPSHOT"
+bundle1181 = "1.18.1-R0.1-SNAPSHOT"
+bundle1182 = "1.18.2-R0.1-SNAPSHOT"
+bundle1192 = "1.19.2-R0.1-SNAPSHOT"
+bundle1193 = "1.19.3-R0.1-SNAPSHOT"
+bundle1194 = "1.19.4-R0.1-SNAPSHOT"
+bundle1201 =  "1.20.1-R0.1-SNAPSHOT"
+bundle1202 = "1.20.2-R0.1-SNAPSHOT"
+bundle1204 = "1.20.4-R0.1-SNAPSHOT"
+bundle1206 = "1.20.6-R0.1-SNAPSHOT"
+bundle1211 = "1.21.1-R0.1-SNAPSHOT"
+bundle1213 = "1.21.3-R0.1-SNAPSHOT"
+bundle1214 = "1.21.4-R0.1-SNAPSHOT"
+bundle1215 = "1.21.5-R0.1-SNAPSHOT"
+bundle1217 = "1.21.7-R0.1-SNAPSHOT"
+bundle1219 = "1.21.9-R0.1-SNAPSHOT"
+bundle12111 = "1.21.11-R0.1-SNAPSHOT"
+bundle26111 = "26.1.1.build.29-alpha"
+bundle2612 = "26.1.2.build.5-alpha"
+
+[plugins]
+## Plugins
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+
+[libraries]
+## Spigot API
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+
+## Kyori Adventure
+adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
+adventure-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
+
+## Testing
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }

@@ -16,11 +16,11 @@
  */
 
 plugins {
-    id("io.papermc.paperweight.userdev")
+    alias(libs.plugins.paperweight)
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.1.2.build.5-alpha")
+    paperweight.paperDevBundle(libs.versions.bundle2612.get())
 }
 
 java {

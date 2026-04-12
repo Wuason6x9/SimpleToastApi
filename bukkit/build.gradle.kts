@@ -16,16 +16,14 @@
  */
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT")
-    //compileOnly("org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly(libs.spigot.api)
 
-    // Adventure serializers (compileOnly, no shading)
-    compileOnly("net.kyori:adventure-text-minimessage:4.17.0")
-    compileOnly("net.kyori:adventure-text-serializer-gson:4.17.0")
-    compileOnly("net.kyori:adventure-text-serializer-legacy:4.17.0")
+    compileOnly(libs.adventure.minimessage)
+    compileOnly(libs.adventure.gson)
+    compileOnly(libs.adventure.legacy)
 
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 java {
