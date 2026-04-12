@@ -15,20 +15,19 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.wuason.toastapi.content;
+plugins {
+    id("io.papermc.paperweight.userdev")
+}
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+dependencies {
+    paperweight.paperDevBundle("26.1.2.build.5-alpha")
+}
 
-public class ComponentContent implements IContent {
-    private final Component component;
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 
-    public ComponentContent(Component component) {
-        this.component = component;
-    }
-
-    @Override
-    public String getContent() {
-        return GsonComponentSerializer.gson().serialize(component);
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }

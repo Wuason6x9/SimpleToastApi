@@ -15,19 +15,26 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.wuason.toastapi.nms.v1_20_R3;
+package dev.wuason.toastapi.nms.v26_1_2;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
 import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.advancements.criterion.ImpossibleTrigger;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,13 +43,16 @@ import java.util.*;
 public class ToastImpl implements IToastWrapper {
 
     private static final String IMPOSSIBLE_KEY = "impossible";
-    private static final Component TOAST_DESCRIPTION = Component.literal(".");
+    private static final String DEFAULT_NAMESPACE = "minecraft";
+    private static final String EMPTY_MODEL_PATH = "air";
 
     private static Component parseComponent(String json) {
-        return Objects.requireNonNull(
-                Component.Serializer.fromJson(json),
-                "Invalid component JSON: " + json
-        );
+        JsonElement element = JsonParser.parseString(json);
+        return ComponentSerialization.CODEC
+                .parse(JsonOps.INSTANCE, element)
+                .resultOrPartial()
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Invalid component JSON: " + json));
     }
 
     private static AdvancementType toAdvancementType(EToastType toastType) {
@@ -54,7 +64,9 @@ public class ToastImpl implements IToastWrapper {
     }
 
     @Override
-    public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
+    public void sendToast(ItemStack icon, Player player, String title,
+                          EToastType toastType, String namespace, String path) {
+
         Objects.requireNonNull(player, "player cannot be null");
         Objects.requireNonNull(title, "title cannot be null");
         Objects.requireNonNull(toastType, "toastType cannot be null");
@@ -62,10 +74,20 @@ public class ToastImpl implements IToastWrapper {
         Objects.requireNonNull(path, "path cannot be null");
 
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        ResourceLocation advancementId = new ResourceLocation(namespace, path);
+        Identifier advancementId = Identifier.fromNamespaceAndPath(namespace, path);
 
-        net.minecraft.world.item.ItemStack nmsIcon = resolveIcon(icon);
-        DisplayInfo displayInfo = createDisplayInfo(nmsIcon, title, toastType);
+        net.minecraft.world.item.ItemStack nmsStack = resolveIcon(icon);
+        ItemStackTemplate iconTemplate = ItemStackTemplate.fromNonEmptyStack(nmsStack);
+
+        DisplayInfo displayInfo = new DisplayInfo(
+                iconTemplate,
+                parseComponent(title),
+                Component.literal("."),
+                Optional.empty(),
+                toAdvancementType(toastType),
+                true, false, true
+        );
+
         Advancement advancement = buildAdvancement(displayInfo);
         AdvancementHolder holder = new AdvancementHolder(advancementId, advancement);
         AdvancementProgress progress = buildGrantedProgress();
@@ -74,32 +96,29 @@ public class ToastImpl implements IToastWrapper {
         sendRevokePacket(serverPlayer, advancementId);
     }
 
-    private DisplayInfo createDisplayInfo(net.minecraft.world.item.ItemStack icon, String title, EToastType toastType) {
-        return new DisplayInfo(
-                icon,
-                parseComponent(title),
-                TOAST_DESCRIPTION,
-                Optional.empty(),
-                toAdvancementType(toastType),
-                true,
-                false,
-                true
-        );
-    }
-
     private net.minecraft.world.item.ItemStack resolveIcon(ItemStack icon) {
         if (icon != null) {
             return CraftItemStack.asNMSCopy(icon);
         }
-        return CraftItemStack.asNMSCopy(new ItemStack(Material.AIR));
+        net.minecraft.world.item.ItemStack fallback =
+                CraftItemStack.asNMSCopy(new ItemStack(Material.STICK));
+
+        DataComponentPatch patch = DataComponentPatch.builder()
+                .set(DataComponents.ITEM_MODEL,
+                        Identifier.fromNamespaceAndPath(DEFAULT_NAMESPACE, EMPTY_MODEL_PATH))
+                .build();
+        fallback.applyComponents(patch);
+        return fallback;
     }
 
     private Advancement buildAdvancement(DisplayInfo displayInfo) {
-        Criterion<ImpossibleTrigger.TriggerInstance> impossibleCriterion =
-                new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());
+        Map<String, Criterion<?>> criteria =
+                Map.of(IMPOSSIBLE_KEY,
+                        new Criterion<>(new ImpossibleTrigger(),
+                                new ImpossibleTrigger.TriggerInstance()));
 
-        Map<String, Criterion<?>> criteria = Map.of(IMPOSSIBLE_KEY, impossibleCriterion);
-        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
+        AdvancementRequirements requirements =
+                new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
 
         return new Advancement(
                 Optional.empty(),
@@ -112,7 +131,9 @@ public class ToastImpl implements IToastWrapper {
     }
 
     private AdvancementProgress buildGrantedProgress() {
-        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
+        AdvancementRequirements requirements =
+                new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
+
         AdvancementProgress progress = new AdvancementProgress();
         progress.update(requirements);
         progress.getCriterion(IMPOSSIBLE_KEY).grant();
@@ -121,23 +142,25 @@ public class ToastImpl implements IToastWrapper {
 
     private void sendGrantPacket(ServerPlayer serverPlayer,
                                  AdvancementHolder holder,
-                                 ResourceLocation advancementId,
+                                 Identifier id,
                                  AdvancementProgress progress) {
         ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
                 false,
                 List.of(holder),
                 Set.of(),
-                Map.of(advancementId, progress)
+                Map.of(id, progress),
+                true
         );
         serverPlayer.connection.send(packet);
     }
 
-    private void sendRevokePacket(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+    private void sendRevokePacket(ServerPlayer serverPlayer, Identifier id) {
         ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
                 false,
                 List.of(),
-                Set.of(advancementId),
-                Map.of()
+                Set.of(id),
+                Map.of(),
+                true
         );
         serverPlayer.connection.send(packet);
     }

@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2026 Wuason6x9 and RubenArtz
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package dev.wuason.toastapi.utils;
 
 import org.bukkit.Bukkit;
@@ -37,6 +54,7 @@ public enum EMinecraftVersion {
     V1_21_11(29, NMSVersion.V1_21_R7),
     V26_1(30, NMSVersion.V26_1),
     V26_1_1(31, NMSVersion.V26_1_1),
+    V26_1_2(32, NMSVersion.V26_1_2),
     UNSUPPORTED(-1, NMSVersion.UNSUPPORTED);
 
     /**
@@ -114,30 +132,95 @@ public enum EMinecraftVersion {
      * @return The selected Minecraft server version.
      */
     public static EMinecraftVersion getServerVersionSelected() {
-        if (serverVersionSelected == null) {
-            String raw = Bukkit.getBukkitVersion().split("-")[0];
-            String[] parts = raw.split("\\.");
-
-            try {
-                int first = Integer.parseInt(parts[0]);
-                if (first >= 25) {
-                    StringBuilder versionKey = new StringBuilder();
-                    int count = 0;
-                    for (String part : parts) {
-                        if (part.matches("\\d+") && count < 3) {
-                            if (count > 0) versionKey.append("_");
-                            versionKey.append(part);
-                            count++;
-                        } else break;
-                    }
-                    serverVersionSelected = fromString(versionKey.toString());
-                    return serverVersionSelected;
-                }
-            } catch (NumberFormatException ignored) {}
-
-            serverVersionSelected = fromString(raw);
+        if (serverVersionSelected != null) {
+            return serverVersionSelected;
         }
+
+        synchronized (EMinecraftVersion.class) {
+            if (serverVersionSelected != null) {
+                return serverVersionSelected;
+            }
+            serverVersionSelected = resolveVersion();
+        }
+
         return serverVersionSelected;
+    }
+
+    private static EMinecraftVersion resolveVersion() {
+        String raw = extractVersionString();
+        String key = normalizeToEnumKey(raw);
+        EMinecraftVersion resolved = fromString(key);
+
+        if (resolved == null) {
+            throw new IllegalStateException(
+                    "Unsupported server version: '" + raw + "' -> key: '" + key + "'. " +
+                            "Please report this at https://github.com/wuason6x9/toastapi"
+            );
+        }
+
+        return resolved;
+    }
+
+    /**
+     * Extracts the raw version string from the Bukkit API.
+     * Works on all Bukkit implementations (Spigot, Paper, Purpur, Folia, etc.)
+     * without reflection.
+     *
+     * <p>Examples:
+     * <ul>
+     *   <li>{@code "1.21.11-R0.1-SNAPSHOT"} -> {@code "1.21.11"}</li>
+     *   <li>{@code "26.1.2-R0.1-SNAPSHOT"}  -> {@code "26.1.2"}</li>
+     * </ul>
+     */
+    private static String extractVersionString() {
+        return Bukkit.getBukkitVersion().split("-")[0];
+    }
+
+    /**
+     * Normalizes a raw version string into an enum key format.
+     *
+     * <p>New versioning scheme (>= 25.x): segments joined by underscores.
+     * <ul>
+     *   <li>{@code "26.1"}   -> {@code "26_1"}</li>
+     *   <li>{@code "26.1.1"} -> {@code "26_1_1"}</li>
+     *   <li>{@code "26.1.2"} -> {@code "26_1_2"}</li>
+     *   <li>{@code "27.1"}   -> {@code "27_1"}</li>
+     * </ul>
+     *
+     * <p>Classic versioning scheme (1.x): passed through as-is.
+     * <ul>
+     *   <li>{@code "1.21.4"}  -> {@code "1.21.4"}</li>
+     *   <li>{@code "1.21.11"} -> {@code "1.21.11"}</li>
+     * </ul>
+     *
+     * @param raw the raw version string (e.g. {@code "26.1.2"})
+     * @return the normalized enum key (e.g. {@code "26_1_2"})
+     */
+    private static String normalizeToEnumKey(String raw) {
+        String[] parts = raw.split("\\.");
+
+        if (parts.length == 0) {
+            return raw;
+        }
+
+        try {
+            int first = Integer.parseInt(parts[0]);
+
+            if (first >= 25) {
+                StringBuilder key = new StringBuilder();
+                for (int i = 0; i < Math.min(parts.length, 3); i++) {
+                    if (!parts[i].matches("\\d+")) break;
+                    if (i > 0) key.append("_");
+                    key.append(parts[i]);
+                }
+                return key.toString();
+            }
+
+            return raw;
+
+        } catch (NumberFormatException ignored) {
+            return raw;
+        }
     }
 
     /**
@@ -252,6 +335,7 @@ public enum EMinecraftVersion {
         V1_21_R7(17),
         V26_1(18),
         V26_1_1(19),
+        V26_1_2(20),
         UNSUPPORTED(-1);
 
         /**

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.wuason.toastapi.nms.v1_19_R1;
+package dev.wuason.toastapi.nms.v1_18_R2;
 
 import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
@@ -26,8 +26,8 @@ import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,7 +39,6 @@ import java.util.Set;
 public class ToastImpl implements IToastWrapper {
 
     private static final String IMPOSSIBLE_KEY = "impossible";
-    private static final Component TOAST_DESCRIPTION = Component.literal(".");
 
     private static Component parseComponent(String json) {
         return Objects.requireNonNull(
@@ -92,7 +91,7 @@ public class ToastImpl implements IToastWrapper {
         return new DisplayInfo(
                 icon,
                 parseComponent(title),
-                TOAST_DESCRIPTION,
+                Component.nullToEmpty("."),
                 null,
                 toFrameType(toastType),
                 true,

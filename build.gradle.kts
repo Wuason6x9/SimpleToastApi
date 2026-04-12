@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2026 Wuason6x9 and RubenArtz
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.21" apply false
@@ -8,7 +25,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "0.11-paper"
+    version = "0.11.1"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -78,8 +95,8 @@ publishing {
             url = uri("https://repo.techmc.es/releases")
             credentials(PasswordCredentials::class) {
 
-                username = "REPO_USERNAME"
-                password = "REPO_PASSWORD"
+                username = System.getenv("REPO_USERNAME")
+                password = System.getenv("REPO_PASSWORD")
             }
         }
     }

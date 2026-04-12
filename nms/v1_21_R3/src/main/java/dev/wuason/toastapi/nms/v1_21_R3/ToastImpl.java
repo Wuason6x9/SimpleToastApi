@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2026 Wuason6x9 and RubenArtz
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package dev.wuason.toastapi.nms.v1_21_R3;
 
 import dev.wuason.toastapi.nms.EToastType;
@@ -22,42 +39,123 @@ import java.util.*;
 
 public class ToastImpl implements IToastWrapper {
 
+    private static final String IMPOSSIBLE_KEY = "impossible";
+    private static final String DEFAULT_NAMESPACE = "minecraft";
+    private static final String EMPTY_MODEL_PATH = "air";
+    private static final Component TOAST_DESCRIPTION = Component.literal(".");
+
+    private static Component parseComponent(String json) {
+        CraftServer craftServer = (CraftServer) Bukkit.getServer();
+        return Objects.requireNonNull(
+                Component.Serializer.fromJson(json, craftServer.getServer().registryAccess()),
+                "Invalid component JSON: " + json
+        );
+    }
+
+    private static AdvancementType toAdvancementType(EToastType toastType) {
+        return switch (toastType) {
+            case TASK -> AdvancementType.TASK;
+            case CHALLENGE -> AdvancementType.CHALLENGE;
+            case GOAL -> AdvancementType.GOAL;
+        };
+    }
+
     @Override
     public void sendToast(ItemStack icon, Player player, String title, EToastType toastType, String namespace, String path) {
+        Objects.requireNonNull(player, "player cannot be null");
+        Objects.requireNonNull(title, "title cannot be null");
+        Objects.requireNonNull(toastType, "toastType cannot be null");
+        Objects.requireNonNull(namespace, "namespace cannot be null");
+        Objects.requireNonNull(path, "path cannot be null");
+
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        net.minecraft.world.item.ItemStack iconNMS = CraftItemStack.asNMSCopy(new ItemStack(Material.STICK));
-        DataComponentPatch dataComponentPatch = DataComponentPatch.builder().set(DataComponents.ITEM_MODEL, ResourceLocation.fromNamespaceAndPath("minecraft", "air")).build();
-        iconNMS.applyComponents(dataComponentPatch);
+        ResourceLocation advancementId = ResourceLocation.fromNamespaceAndPath(namespace, path);
+
+        net.minecraft.world.item.ItemStack nmsIcon = resolveIcon(icon);
+        DisplayInfo displayInfo = createDisplayInfo(nmsIcon, title, toastType);
+        Advancement advancement = buildAdvancement(displayInfo);
+        AdvancementHolder holder = new AdvancementHolder(advancementId, advancement);
+        AdvancementProgress progress = buildGrantedProgress();
+
+        sendGrantPacket(serverPlayer, holder, advancementId, progress);
+        sendRevokePacket(serverPlayer, advancementId);
+    }
+
+    private DisplayInfo createDisplayInfo(net.minecraft.world.item.ItemStack icon, String title, EToastType toastType) {
+        return new DisplayInfo(
+                icon,
+                parseComponent(title),
+                TOAST_DESCRIPTION,
+                Optional.empty(),
+                toAdvancementType(toastType),
+                true,
+                false,
+                true
+        );
+    }
+
+    private net.minecraft.world.item.ItemStack resolveIcon(ItemStack icon) {
         if (icon != null) {
-            iconNMS = CraftItemStack.asNMSCopy(icon);
+            return CraftItemStack.asNMSCopy(icon);
         }
-        CraftServer craftServer = (CraftServer) Bukkit.getServer();
-        Optional<DisplayInfo> displayInfo = Optional.of(new DisplayInfo(iconNMS, Objects.requireNonNull(Component.Serializer.fromJson(title, craftServer.getServer().registryAccess())), Component.literal("."), Optional.empty(), AdvancementType.valueOf(toastType.toString()), true, false, true));
-        AdvancementRewards advancementRewards = AdvancementRewards.EMPTY;
-        Optional<ResourceLocation> id = Optional.of(ResourceLocation.fromNamespaceAndPath(namespace, path));
-        Criterion<ImpossibleTrigger.TriggerInstance> impossibleTrigger = new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());
-        HashMap<String, Criterion<?>> criteria = new HashMap<>() {{
-            put("impossible", impossibleTrigger);
-        }};
-        List<List<String>> requirements = new ArrayList<>() {{
-            add(new ArrayList<>() {{
-                add("impossible");
-            }});
-        }};
-        AdvancementRequirements advancementRequirements = new AdvancementRequirements(requirements);
-        Advancement advancement = new Advancement(Optional.empty(), displayInfo, advancementRewards, criteria, advancementRequirements, false);
-        Map<ResourceLocation, AdvancementProgress> advancementsToGrant = new HashMap<>();
-        AdvancementProgress advancementProgress = new AdvancementProgress();
-        advancementProgress.update(advancementRequirements);
-        advancementProgress.getCriterion("impossible").grant();
-        advancementsToGrant.put(id.get(), advancementProgress);
-        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(false, new ArrayList<>() {{
-            add(new AdvancementHolder(id.get(), advancement));
-        }}, new HashSet<>(), advancementsToGrant);
+
+        net.minecraft.world.item.ItemStack fallback = CraftItemStack.asNMSCopy(new ItemStack(Material.STICK));
+        DataComponentPatch patch = DataComponentPatch.builder()
+                .set(
+                        DataComponents.ITEM_MODEL,
+                        ResourceLocation.fromNamespaceAndPath(DEFAULT_NAMESPACE, EMPTY_MODEL_PATH)
+                )
+                .build();
+
+        fallback.applyComponents(patch);
+        return fallback;
+    }
+
+    private Advancement buildAdvancement(DisplayInfo displayInfo) {
+        Criterion<ImpossibleTrigger.TriggerInstance> impossibleCriterion =
+                new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance());
+
+        Map<String, Criterion<?>> criteria = Map.of(IMPOSSIBLE_KEY, impossibleCriterion);
+        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
+
+        return new Advancement(
+                Optional.empty(),
+                Optional.of(displayInfo),
+                AdvancementRewards.EMPTY,
+                criteria,
+                requirements,
+                false
+        );
+    }
+
+    private AdvancementProgress buildGrantedProgress() {
+        AdvancementRequirements requirements = new AdvancementRequirements(List.of(List.of(IMPOSSIBLE_KEY)));
+        AdvancementProgress progress = new AdvancementProgress();
+        progress.update(requirements);
+        progress.getCriterion(IMPOSSIBLE_KEY).grant();
+        return progress;
+    }
+
+    private void sendGrantPacket(ServerPlayer serverPlayer,
+                                 AdvancementHolder holder,
+                                 ResourceLocation advancementId,
+                                 AdvancementProgress progress) {
+        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(holder),
+                Set.of(),
+                Map.of(advancementId, progress)
+        );
         serverPlayer.connection.send(packet);
-        ClientboundUpdateAdvancementsPacket packet2 = new ClientboundUpdateAdvancementsPacket(false, new ArrayList<>(), new HashSet<>() {{
-            add(id.get());
-        }}, new HashMap<>());
-        serverPlayer.connection.send(packet2);
+    }
+
+    private void sendRevokePacket(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(),
+                Set.of(advancementId),
+                Map.of()
+        );
+        serverPlayer.connection.send(packet);
     }
 }
