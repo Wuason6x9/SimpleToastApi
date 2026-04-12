@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.wuason:simple-toast:0.9.1'
+    implementation 'dev.wuason:simple-toast:0.11.1'
 }
 
 tasks {
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.wuason:simple-toast:0.11-paper")
+    implementation("dev.wuason:simple-toast:0.11.1")
 }
 
 tasks.shadowJar {
@@ -99,7 +99,7 @@ Add the repository to your pom.xml file:
 <dependency>
     <groupId>dev.wuason</groupId>
     <artifactId>simple-toast</artifactId>
-    <version>0.11-paper</version>
+    <version>0.11.1</version>
     <scope>provided</scope>
 </dependency>
 ```
