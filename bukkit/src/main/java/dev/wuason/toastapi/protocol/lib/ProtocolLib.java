@@ -15,19 +15,15 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-plugins {
-    alias(libs.plugins.paperweight)
-}
+package dev.wuason.toastapi.protocol.lib;
 
-dependencies {
-    paperweight.paperDevBundle(libs.versions.bundle2611.get())
-}
+import com.comphenix.protocol.ProtocolLibrary;
+import dev.wuason.toastapi.protocol.PlayerVersion;
+import org.bukkit.entity.Player;
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
+public class ProtocolLib implements PlayerVersion {
+    @Override
+    public int getProtocol(Player player) {
+        return ProtocolLibrary.getProtocolManager().getProtocolVersion(player);
     }
 }

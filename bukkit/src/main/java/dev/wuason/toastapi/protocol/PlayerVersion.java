@@ -15,19 +15,17 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-plugins {
-    alias(libs.plugins.paperweight)
-}
+package dev.wuason.toastapi.protocol;
 
-dependencies {
-    paperweight.paperDevBundle(libs.versions.bundle2611.get())
-}
+import org.bukkit.entity.Player;
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+public interface PlayerVersion {
 
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
-    }
+    /**
+     * Get the protocol version of a player.
+     *
+     * @param player the user to get the protocol id
+     * @return int - Protocol version
+     */
+    int getProtocol(Player player);
 }

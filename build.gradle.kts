@@ -25,7 +25,7 @@ plugins {
 allprojects {
 
     group = "dev.wuason"
-    version = "0.11.1"
+    version = "0.11.2"
 
     apply(plugin = "java")
     apply(plugin = "org.gradle.maven-publish")
@@ -34,7 +34,11 @@ allprojects {
         mavenCentral()
         mavenLocal()
 
+        maven("https://repo.viaversion.com")
+        maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://repo.papermc.io/repository/maven-public/") // For Paper
+        maven("https://repo.codemc.io/repository/maven-releases/")
+        maven("https://repo.codemc.io/repository/maven-snapshots/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // For Spigot
     }
 

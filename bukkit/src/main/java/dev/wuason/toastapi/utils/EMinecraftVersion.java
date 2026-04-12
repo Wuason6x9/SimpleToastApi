@@ -22,40 +22,48 @@ import org.bukkit.Bukkit;
 import java.util.Objects;
 
 public enum EMinecraftVersion {
-    V1_16_5(0, NMSVersion.V1_16_R3),
-    V1_17(1, NMSVersion.V1_17_R1),
-    V1_17_1(2, NMSVersion.V1_17_R1),
-    V1_18(3, NMSVersion.V1_18_R1),
-    V1_18_1(4, NMSVersion.V1_18_R1),
-    V1_18_2(5, NMSVersion.V1_18_R2),
-    V1_19(6, NMSVersion.V1_19_R1),
-    V1_19_1(7, NMSVersion.V1_19_R1),
-    V1_19_2(8, NMSVersion.V1_19_R1),
-    V1_19_3(9, NMSVersion.V1_19_R2),
-    V1_19_4(10, NMSVersion.V1_19_R3),
-    V1_20(11, NMSVersion.V1_20_R1),
-    V1_20_1(12, NMSVersion.V1_20_R1),
-    V1_20_2(13, NMSVersion.V1_20_R2),
-    V1_20_3(14, NMSVersion.V1_20_R3),
-    V1_20_4(15, NMSVersion.V1_20_R3),
-    V1_20_5(16, NMSVersion.V1_20_R4),
-    V1_20_6(17, NMSVersion.V1_20_R4),
-    V1_21(18, NMSVersion.V1_21_R1),
-    V1_21_1(19, NMSVersion.V1_21_R1),
-    V1_21_2(20, NMSVersion.V1_21_R1),
-    V1_21_3(21, NMSVersion.V1_21_R2),
-    V1_21_4(22, NMSVersion.V1_21_R3),
-    V1_21_5(23, NMSVersion.V1_21_R4),
-    V1_21_6(24, NMSVersion.V1_21_R5),
-    V1_21_7(25, NMSVersion.V1_21_R5),
-    V1_21_8(26, NMSVersion.V1_21_R5),
-    V1_21_9(27, NMSVersion.V1_21_R6),
-    V1_21_10(28, NMSVersion.V1_21_R6),
-    V1_21_11(29, NMSVersion.V1_21_R7),
-    V26_1(30, NMSVersion.V26_1),
-    V26_1_1(31, NMSVersion.V26_1_1),
-    V26_1_2(32, NMSVersion.V26_1_2),
+    V1_16_5(754, NMSVersion.V1_16_R3),
+
+    V1_17(755, NMSVersion.V1_17_R1),
+    V1_17_1(756, NMSVersion.V1_17_R1),
+
+    V1_18(757, NMSVersion.V1_18_R1),
+    V1_18_1(757, NMSVersion.V1_18_R1),
+    V1_18_2(758, NMSVersion.V1_18_R2),
+
+    V1_19(759, NMSVersion.V1_19_R1),
+    V1_19_1(760, NMSVersion.V1_19_R1),
+    V1_19_2(760, NMSVersion.V1_19_R1),
+    V1_19_3(761, NMSVersion.V1_19_R2),
+    V1_19_4(762, NMSVersion.V1_19_R3),
+
+    V1_20(763, NMSVersion.V1_20_R1),
+    V1_20_1(763, NMSVersion.V1_20_R1),
+    V1_20_2(764, NMSVersion.V1_20_R2),
+    V1_20_3(765, NMSVersion.V1_20_R3),
+    V1_20_4(765, NMSVersion.V1_20_R3),
+    V1_20_5(766, NMSVersion.V1_20_R4),
+    V1_20_6(766, NMSVersion.V1_20_R4),
+
+    V1_21(767, NMSVersion.V1_21_R1),
+    V1_21_1(767, NMSVersion.V1_21_R1),
+    V1_21_2(768, NMSVersion.V1_21_R1),
+    V1_21_3(768, NMSVersion.V1_21_R2),
+    V1_21_4(769, NMSVersion.V1_21_R3),
+    V1_21_5(770, NMSVersion.V1_21_R4),
+    V1_21_6(771, NMSVersion.V1_21_R5),
+    V1_21_7(772, NMSVersion.V1_21_R5),
+    V1_21_8(772, NMSVersion.V1_21_R5),
+    V1_21_9(773, NMSVersion.V1_21_R6),
+    V1_21_10(773, NMSVersion.V1_21_R6),
+    V1_21_11(774, NMSVersion.V1_21_R7),
+
+    V26_1(775, NMSVersion.V26_1),
+    V26_1_1(775, NMSVersion.V26_1_1),
+    V26_1_2(775, NMSVersion.V26_1_2),
+
     UNSUPPORTED(-1, NMSVersion.UNSUPPORTED);
+
 
     /**
      * Represents the specific version of the Minecraft server that has been selected.

@@ -21,6 +21,9 @@ dependencies {
     compileOnly(libs.adventure.minimessage)
     compileOnly(libs.adventure.gson)
     compileOnly(libs.adventure.legacy)
+    compileOnly(libs.viaversion)
+    compileOnly(libs.protocolLib)
+    compileOnly(libs.packetevents)
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.launcher)

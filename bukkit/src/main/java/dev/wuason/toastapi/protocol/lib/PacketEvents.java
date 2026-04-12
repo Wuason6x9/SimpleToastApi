@@ -15,19 +15,19 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-plugins {
-    alias(libs.plugins.paperweight)
-}
+package dev.wuason.toastapi.protocol.lib;
 
-dependencies {
-    paperweight.paperDevBundle(libs.versions.bundle2611.get())
-}
+import com.github.retrooper.packetevents.manager.player.PlayerManager;
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
+import dev.wuason.toastapi.protocol.PlayerVersion;
+import org.bukkit.entity.Player;
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+public class PacketEvents implements PlayerVersion {
 
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
+    @Override
+    public int getProtocol(Player player) {
+        PlayerManager manager = com.github.retrooper.packetevents.PacketEvents.getAPI().getPlayerManager();
+        ClientVersion clientVersion = manager.getClientVersion(player);
+        return clientVersion.getProtocolVersion();
     }
 }

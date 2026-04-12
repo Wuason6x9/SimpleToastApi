@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    paperweight.paperDevBundle(libs.versions.bundle26111.get())
+    paperweight.paperDevBundle(libs.versions.bundle2611.get())
 }
 
 java {
