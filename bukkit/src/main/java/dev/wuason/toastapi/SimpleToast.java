@@ -20,6 +20,7 @@ package dev.wuason.toastapi;
 import dev.wuason.toastapi.content.IContent;
 import dev.wuason.toastapi.nms.EToastType;
 import dev.wuason.toastapi.nms.IToastWrapper;
+import dev.wuason.toastapi.nms.NmsModuleLoader;
 import dev.wuason.toastapi.protocol.PlayerVersionProvider;
 import dev.wuason.toastapi.utils.EMinecraftVersion;
 import org.bukkit.Bukkit;
@@ -28,47 +29,15 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Entry point utility for sending toast notifications to players.
- *
- * <p>All textual content is provided via {@link IContent} implementations which must return
- * a valid JSON text component string understood by the client.
- *
- * <p>Provided overloads allow specifying (optionally) the icon, toast type, namespace and path.
- * Convenience variants fall back to sensible defaults:
- * <ul>
- *   <li>Namespace: {@code "simpletoastapi"}</li>
- *   <li>Path: {@code "toastannounce"}</li>
- *   <li>Toast type: {@link EToastType#TASK}</li>
- * </ul>
- *
- * <p>Players connecting with a protocol version below {@code 754} (Minecraft 1.16.5)
- * will not receive a toast, as the advancement packet required is not available on those clients.
- */
 public class SimpleToast {
 
     private static final String DEFAULT_NAMESPACE = "simpletoastapi";
     private static final String DEFAULT_PATH = "toastannounce";
-
-    /**
-     * Minimum protocol version that supports the advancement packet used to display toasts.
-     * Protocol {@code 754} corresponds to Minecraft 1.16.5.
-     */
     private static final int MIN_TOAST_PROTOCOL = 754;
 
     private SimpleToast() {
     }
 
-    /**
-     * Sends a toast notification with full parameter control.
-     *
-     * @param icon      Optional item icon displayed in the toast. Pass {@code null} for no icon.
-     * @param player    Target player. Must not be {@code null}.
-     * @param title     Content provider returning a valid JSON text component. Must not be {@code null}.
-     * @param toastType Visual frame style of the toast (TASK, GOAL or CHALLENGE).
-     * @param namespace Advancement namespace used internally to identify this toast packet.
-     * @param path      Advancement path used internally to identify this toast packet.
-     */
     public static void sendToast(@Nullable ItemStack icon,
                                  @NotNull Player player,
                                  @NotNull IContent title,
@@ -82,15 +51,6 @@ public class SimpleToast {
         wrapper.sendToast(icon, player, title.getContent(), toastType, namespace, path);
     }
 
-    /**
-     * Sends a toast without an icon, retaining control over all other parameters.
-     *
-     * @param player    Target player. Must not be {@code null}.
-     * @param title     Content provider returning a valid JSON text component. Must not be {@code null}.
-     * @param toastType Visual frame style of the toast.
-     * @param namespace Advancement namespace used internally to identify this toast packet.
-     * @param path      Advancement path used internally to identify this toast packet.
-     */
     public static void sendToast(@NotNull Player player,
                                  @NotNull IContent title,
                                  @NotNull EToastType toastType,
@@ -99,14 +59,6 @@ public class SimpleToast {
         sendToast(null, player, title, toastType, namespace, path);
     }
 
-    /**
-     * Sends a toast with a custom icon and toast type, using the default namespace and path.
-     *
-     * @param icon      Optional item icon displayed in the toast. Pass {@code null} for no icon.
-     * @param player    Target player. Must not be {@code null}.
-     * @param title     Content provider returning a valid JSON text component. Must not be {@code null}.
-     * @param toastType Visual frame style of the toast.
-     */
     public static void sendToast(@Nullable ItemStack icon,
                                  @NotNull Player player,
                                  @NotNull IContent title,
@@ -114,55 +66,22 @@ public class SimpleToast {
         sendToast(icon, player, title, toastType, DEFAULT_NAMESPACE, DEFAULT_PATH);
     }
 
-    /**
-     * Sends a toast with a custom icon using default toast type (TASK),
-     * default namespace and default path.
-     *
-     * @param icon   Optional item icon displayed in the toast. Pass {@code null} for no icon.
-     * @param player Target player. Must not be {@code null}.
-     * @param title  Content provider returning a valid JSON text component. Must not be {@code null}.
-     */
     public static void sendToast(@Nullable ItemStack icon,
                                  @NotNull Player player,
                                  @NotNull IContent title) {
         sendToast(icon, player, title, EToastType.TASK);
     }
 
-    /**
-     * Sends a toast without an icon, with a custom toast type and default namespace/path.
-     *
-     * @param player    Target player. Must not be {@code null}.
-     * @param title     Content provider returning a valid JSON text component. Must not be {@code null}.
-     * @param toastType Visual frame style of the toast.
-     */
     public static void sendToast(@NotNull Player player,
                                  @NotNull IContent title,
                                  @NotNull EToastType toastType) {
         sendToast(null, player, title, toastType);
     }
 
-    /**
-     * Sends a toast without an icon using default toast type (TASK),
-     * default namespace and default path.
-     *
-     * @param player Target player. Must not be {@code null}.
-     * @param title  Content provider returning a valid JSON text component. Must not be {@code null}.
-     */
     public static void sendToast(@NotNull Player player, @NotNull IContent title) {
         sendToast(null, player, title, EToastType.TASK);
     }
 
-    /**
-     * Resolves the {@link IToastWrapper} for the current server version.
-     *
-     * <p>If the client's protocol version is below {@link #MIN_TOAST_PROTOCOL},
-     * {@code null} is returned and no packet is sent.
-     * Otherwise, the wrapper is loaded for the server's NMS version.
-     *
-     * @param player the target player, used to read the client protocol version.
-     * @return the resolved {@link IToastWrapper}, or {@code null} if the client
-     * is too old or the server version has no NMS implementation.
-     */
     @Nullable
     private static IToastWrapper resolveWrapper(@NotNull Player player) {
         int protocol = PlayerVersionProvider.get().getProtocol(player);
@@ -171,18 +90,42 @@ public class SimpleToast {
         }
 
         EMinecraftVersion serverVersion = EMinecraftVersion.getServerVersionSelected();
+        EMinecraftVersion.NMSVersion nmsVersion = serverVersion.getNMSVersion();
 
         try {
+            if (nmsVersion == EMinecraftVersion.NMSVersion.V26_1) {
+                return resolveDynamicWrapper("v26_1", "dev.wuason.toastapi.nms.v26_1.ToastImpl");
+            }
+            if (nmsVersion == EMinecraftVersion.NMSVersion.V26_1_1) {
+                return resolveDynamicWrapper("v26_1_1", "dev.wuason.toastapi.nms.v26_1_1.ToastImpl");
+            }
+            if (nmsVersion == EMinecraftVersion.NMSVersion.V26_1_2) {
+                return resolveDynamicWrapper("v26_1_2", "dev.wuason.toastapi.nms.v26_1_2.ToastImpl");
+            }
+
             String className = String.format(
                     "dev.wuason.toastapi.nms.v%s.ToastImpl",
-                    serverVersion.getNMSVersion().getVersionName()
+                    nmsVersion.getVersionName()
             );
+
             return (IToastWrapper) Class.forName(className)
                     .getDeclaredConstructors()[0]
                     .newInstance();
         } catch (Exception e) {
             Bukkit.getLogger().severe("[SimpleToastApi] Failed to load wrapper: " + e.getMessage());
+            e.printStackTrace();
+
+            if (e.getCause() != null) {
+                e.getCause().printStackTrace();
+            }
+
             return null;
         }
+    }
+
+    @NotNull
+    private static IToastWrapper resolveDynamicWrapper(@NotNull String moduleName,
+                                                       @NotNull String implementationClassName) {
+        return NmsModuleLoader.load(moduleName, implementationClassName);
     }
 }

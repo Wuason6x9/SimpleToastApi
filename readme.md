@@ -18,13 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.wuason:simple-toast:0.11.1'
-}
-
-tasks {
-    shadowJar {
-        relocate("dev.wuason.toastapi", "my.project")
-    }
+    implementation 'dev.wuason:simple-toast:0.11.2'
 }
 ```
 
@@ -46,11 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.wuason:simple-toast:0.11.1")
-}
-
-tasks.shadowJar {
-    relocate("dev.wuason.toastapi", "my.project")
+    implementation("dev.wuason:simple-toast:0.11.2")
 }
 ```
 
@@ -99,7 +89,7 @@ Add the repository to your pom.xml file:
 <dependency>
     <groupId>dev.wuason</groupId>
     <artifactId>simple-toast</artifactId>
-    <version>0.11.1</version>
+    <version>0.11.2</version>
     <scope>provided</scope>
 </dependency>
 ```

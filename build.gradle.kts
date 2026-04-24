@@ -23,7 +23,6 @@ plugins {
 }
 
 allprojects {
-
     group = "dev.wuason"
     version = "0.11.2"
 
@@ -33,13 +32,12 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-
         maven("https://repo.viaversion.com")
         maven("https://repo.dmulloy2.net/repository/public/")
-        maven("https://repo.papermc.io/repository/maven-public/") // For Paper
+        maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://repo.codemc.io/repository/maven-releases/")
         maven("https://repo.codemc.io/repository/maven-snapshots/")
-        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // For Spigot
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
 
     tasks.withType<JavaCompile> {
@@ -53,11 +51,17 @@ allprojects {
     }
 }
 
+val embeddedNmsModules by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    isTransitive = false
+}
+
 dependencies {
     implementation(project(":bukkit"))
 
-    allprojects.filter { ":nms:" in it.path }.forEach {
-        val noReobfVersions = listOf("v1_16", "v26_1", "v26_1_1", "v26_1_2")
+    allprojects.filter { ":nms:" in it.path && !it.path.contains("v26_1") }.forEach {
+        val noReobfVersions = listOf("v1_16")
 
         val config = if (noReobfVersions.any { v -> it.path.contains(v, true) }) {
             "default"
@@ -67,15 +71,37 @@ dependencies {
 
         implementation(project(it.path, config))
     }
+
+    embeddedNmsModules(project(path = ":nms:v26_1", configuration = "runtimeElements"))
+    embeddedNmsModules(project(path = ":nms:v26_1_1", configuration = "runtimeElements"))
+    embeddedNmsModules(project(path = ":nms:v26_1_2", configuration = "runtimeElements"))
 }
 
-
 tasks {
-
     shadowJar {
-        //simple toast
         archiveFileName.set("SimpleToast-${rootProject.version}.jar")
         archiveClassifier.set("")
+
+        dependencies {
+            exclude(project(":nms:v26_1"))
+            exclude(project(":nms:v26_1_1"))
+            exclude(project(":nms:v26_1_2"))
+        }
+
+        from(project(":nms:v26_1").tasks.named("jar")) {
+            into("nms_modules")
+            rename { "v26_1.jar" }
+        }
+
+        from(project(":nms:v26_1_1").tasks.named("jar")) {
+            into("nms_modules")
+            rename { "v26_1_1.jar" }
+        }
+
+        from(project(":nms:v26_1_2").tasks.named("jar")) {
+            into("nms_modules")
+            rename { "v26_1_2.jar" }
+        }
     }
 
     build {
